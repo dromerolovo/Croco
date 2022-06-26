@@ -1,7 +1,7 @@
 import 'package:croco/croco.dart';
 import 'package:flutter/cupertino.dart';
 import './validators.dart';
-import '../basic.dart';
+import '../buttons.dart';
 import 'package:flutter/material.dart';
 import '../../croco_base.dart';
 
@@ -51,7 +51,7 @@ class CrocoOrnamentIconFormItem extends StatelessWidget {
   }
 } 
 
-
+//Migration to theme and form state/validation pending
 class CrocoFormItem extends StatefulWidget {
   CrocoFormItem({
     Key? key,
@@ -179,6 +179,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
   }
 }
 
+//Migration to theme and form state/validation pending
 class CrocoForm extends StatefulWidget {
   CrocoForm({
     Key? key,
@@ -364,6 +365,7 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
   }
 }
 
+//Migration to theme and form state/validation pending
 class LogInForm extends StatefulWidget with CrocoBase  {
   LogInForm({
     Key? key,
@@ -601,7 +603,10 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
       alignment: Alignment.topCenter,
       child: TextFormField(
         validator: ((value) {
-          widget.validation!.validation(value);
+          if(widget.validation != null) {
+            return widget.validation!.validation(value);
+          }
+           
         }),
         focusNode: node,
         onTap: () {
@@ -613,6 +618,9 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
           fontSize: 14.5,
         ),
         decoration: InputDecoration(
+          errorStyle: TextStyle(
+            fontFamily: "Segoe UI"
+          ),
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(
               color: widget.colorTheme ?? Theme.of(context).colorScheme.primary
@@ -643,13 +651,16 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
   }
 }
 
+// I know this is not an ideal solution, but is something that I came up with and it works just fine. I'm open to discuss better solutions though
 class CrocoFormDense extends StatefulWidget {
   CrocoFormDense({
     Key? key,
-    List<CrocoFormItemDense>? this.children
+    List<CrocoFormItemDense>? this.children,
+    this.button
     }) : super(key: key);
 
     List<CrocoFormItemDense>? children;
+    Widget? button;
     
 
   @override
@@ -659,8 +670,9 @@ class CrocoFormDense extends StatefulWidget {
 class _CrocoFormDenseState extends State<CrocoFormDense> {
 
   List<Widget> processedList = [];
+  final formKey = GlobalKey<FormState>();
 
-  void preProcessor(List<CrocoFormItemDense>? children) {
+  void preProcessor(List<CrocoFormItemDense>? children, Widget? button ) {
 
     int count = -1;
     double evenCount = 0;
@@ -713,13 +725,24 @@ class _CrocoFormDenseState extends State<CrocoFormDense> {
       
       
     }
+
+    processedList.add(
+      Container(
+        margin: EdgeInsets.only(left:20),
+        alignment: Alignment.centerLeft,
+        transform: count == 0 ? Matrix4.translationValues(0, -20, 0) : Matrix4.translationValues(0, -20 + (-40 * evenCount), 0),
+        child: SquaredButton(
+          parentGlobalKey: formKey,
+        ),
+      )
+    );
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    preProcessor(widget.children);
+    preProcessor(widget.children, widget.button);
   }
  
   @override
@@ -729,10 +752,13 @@ class _CrocoFormDenseState extends State<CrocoFormDense> {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
         ),
-        child: Column(
-          children: [
-            for(var itemForm in processedList) itemForm,
-          ]
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              for(var itemForm in processedList) itemForm,
+            ]
+          ),
         )
       ),
     );

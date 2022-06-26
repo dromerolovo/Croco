@@ -18,14 +18,13 @@ class MyApp extends StatelessWidget {
     
     return MediaQuery(
       data: MediaQueryData(),
-      child: MaterialApp(
-        title: 'croco',
-        theme: ThemeData(
-          scaffoldBackgroundColor: Colors.white,
-          fontFamily: 'Segoe UI',
-          primarySwatch: Colors.lightBlue,
+      child: CrocoTheme(
+        themeDataExtra: CrocoThemes.deepSea.themeExtra,
+        child: MaterialApp(
+          title: 'croco',
+          theme: CrocoThemes.deepSea.theme,
+          home: MyHomePage(),
         ),
-        home: MyHomePage(),
       ),
     );
   }
@@ -60,7 +59,7 @@ class MyHomePage extends StatelessWidget {
                 xAxisSquares: 2,
                 yAxisSquares: 2,
                 childOn: Container(
-                  color: Colors.white
+                  color: Theme.of(context).colorScheme.surface
                 ),
               ),
               Tile(
@@ -69,17 +68,41 @@ class MyHomePage extends StatelessWidget {
                 xAxisSquares:2,
                 yAxisSquares:2,
                 childOn: Container(
-                  color: Colors.white
+                  color: Theme.of(context).colorScheme.surface,
                 ),
 
               ),
               Tile(
+                header: true,
+                headerText: "Sales Managment",
+                extraHeaderInfo: "Sales Records",
                 xStartPoint: 3,
                 yStartPoint: 1,
-                xAxisSquares: 2,
-                yAxisSquares: 2,
+                xAxisSquares: 3,
+                yAxisSquares: 3,
                 childOn: Container(
-                  color: Colors.white
+                  color: Theme.of(context).colorScheme.surface,
+                  child: CrocoFormDense(
+                    children: [
+                      CrocoFormItemDense(
+                        labelText: "Address",
+                        halfSize: true,
+                        validation: Validation.isEmpty,
+                      ),
+                      CrocoFormItemDense(
+                        labelText: "District",
+                        halfSize: true,
+                      ),
+                      CrocoFormItemDense(
+                        labelText: "Reference",
+                      ),
+                      CrocoFormItemDense(
+                        labelText: "Zone",
+                        halfSize: true,
+                        alone: true,
+                      )
+                    ],
+                  ),
                 )
               )
             ]

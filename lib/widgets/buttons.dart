@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../croco_base.dart';
 
+//Migration to Theme pending
 class SimpleButton extends StatelessWidget {
   SimpleButton({
     Key? key,
@@ -48,6 +49,7 @@ class SimpleButton extends StatelessWidget {
   }
 }
 
+//Migration to theme pending
 class SimpleButtonWithIcon extends StatelessWidget {
   SimpleButtonWithIcon({
     Key? key,
@@ -112,6 +114,62 @@ class SimpleButtonWithIcon extends StatelessWidget {
           )
         ),
       ),
+    );
+  }
+}
+
+class SquaredButton extends StatefulWidget {
+  SquaredButton(
+    {Key? key,
+    this.backgroundColor,
+    this.textColor,
+    this.text = "Save",
+    this.callback,
+    this.parentGlobalKey
+    }) : super(key: key);
+
+    Color? backgroundColor;
+    Color? textColor;
+    String? text;
+    Function? callback;
+    GlobalKey<FormState>? parentGlobalKey;
+
+  @override
+  State<SquaredButton> createState() => _SquaredButtonState();
+}
+
+class _SquaredButtonState extends State<SquaredButton> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 80 / 1.1,
+      height: 38.31 / 1.1,
+      child: Material(
+        borderRadius: BorderRadius.circular(5),
+        color: widget.backgroundColor ?? Theme.of(context).colorScheme.primary,
+        child: InkWell(
+          splashColor: CrocoBase.lightenColorForHighlight(Theme.of(context).colorScheme.primary),
+          onTap: (() {
+            if(widget.parentGlobalKey!.currentState!.validate()) {
+
+            }
+            
+          }),
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              // color: widget.backgroundColor ?? Theme.of(context).colorScheme.primary
+            ),
+            child: Text(
+              widget.text!,
+              style: TextStyle(
+                color: widget.textColor ?? Theme.of(context).colorScheme.onPrimary
+              )
+            )
+          ),
+        ),
+      )
     );
   }
 }

@@ -49,6 +49,7 @@ ThemeData zenForest = ThemeData(
   fontFamily: "Segoe UI",
   colorScheme: ColorScheme.fromSeed(
     primary: Colors.lightGreen,
+    onPrimary: Colors.white,
     seedColor: Colors.lightGreen,
     brightness: Brightness.light,
     secondary: Colors.brown,
@@ -73,6 +74,7 @@ ThemeData deepSea = ThemeData(
   fontFamily: "Segoe UI",
   colorScheme: ColorScheme.fromSeed(
     primary: Colors.teal,
+    onPrimary: Colors.white,
     brightness: Brightness.dark,
     seedColor: Colors.teal,
     secondary: Colors.tealAccent[400],

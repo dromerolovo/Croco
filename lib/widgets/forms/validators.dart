@@ -15,7 +15,7 @@ extension ValidatorLogic on Validation {
 
 dynamic isEmptyValidation(String? value) {
 
-  if(value!.isEmpty) {
+  if(value == null || value.isEmpty) {
     return "This field should not be empty";
   } else {
     return null;
