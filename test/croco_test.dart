@@ -1,4 +1,5 @@
 import 'package:croco/widgets/croco_grid.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +19,15 @@ class MyApp extends StatelessWidget {
     
     return MediaQuery(
       data: MediaQueryData(),
-      child: CrocoTheme(
-        themeDataExtra: CrocoThemes.deepSea.themeExtra,
-        child: MaterialApp(
-          title: 'croco',
-          theme: CrocoThemes.deepSea.theme,
-          home: MyHomePage(),
+      child: ProviderScope(
+        child: CrocoTheme(
+          themeDataExtra: CrocoThemes.deepSea.themeExtra,
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'croco',
+            theme: CrocoThemes.deepSea.theme,
+            home: MyHomePage(),
+          ),
         ),
       ),
     );
@@ -54,6 +58,9 @@ class MyHomePage extends StatelessWidget {
           viewChild: CrocoGrid(
             tilesList: [
               Tile(
+                header: true,
+                headerText: "Client Info",
+                extraHeaderInfo: "User records",
                 xStartPoint: 1,
                 yStartPoint: 1,
                 xAxisSquares: 2,
@@ -74,8 +81,8 @@ class MyHomePage extends StatelessWidget {
               ),
               Tile(
                 header: true,
-                headerText: "Sales Managment",
-                extraHeaderInfo: "Sales Records",
+                headerText: "Address Manager",
+                extraHeaderInfo: "User records",
                 xStartPoint: 3,
                 yStartPoint: 1,
                 xAxisSquares: 3,
@@ -83,6 +90,8 @@ class MyHomePage extends StatelessWidget {
                 childOn: Container(
                   color: Theme.of(context).colorScheme.surface,
                   child: CrocoFormDense(
+                    name: "Address Manager",
+                    formValidation: FormValidation.self,
                     children: [
                       CrocoFormItemDense(
                         labelText: "Address",
@@ -104,6 +113,17 @@ class MyHomePage extends StatelessWidget {
                     ],
                   ),
                 )
+              ),
+              Tile(
+                xStartPoint: 3,
+                yStartPoint: 4,
+                xAxisSquares: 3,
+                yAxisSquares: 1,
+                childOn: Container(
+                  alignment: Alignment.centerLeft,
+                  color: Theme.of(context).colorScheme.surface,
+                  child: ConsolidationForm()
+                ),
               )
             ]
           )

@@ -4,6 +4,8 @@ import './validators.dart';
 import '../buttons.dart';
 import 'package:flutter/material.dart';
 import '../../croco_base.dart';
+import '../../state/forms_state.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum FormItemSize {small, medium, large, xlarge}
 
@@ -20,6 +22,8 @@ extension FormItemSizeValue on FormItemSize {
 }
 
 enum FormItemOrnament { prefix, sufix}
+
+enum FormValidation { self, group}
 
 class CrocoOrnamentIconFormItem extends StatelessWidget {
 
@@ -214,7 +218,6 @@ class _CrocoFormState extends State<CrocoForm> with WidgetsBindingObserver {
       } else {
         adjustSpace = 50;
       }
-      print(globalKey.currentContext!.size!.height);
       setState(() {});
     });
     super.initState();
@@ -232,7 +235,6 @@ class _CrocoFormState extends State<CrocoForm> with WidgetsBindingObserver {
       });
       widgetsOnRowProcessed = widgetsIterable.toList();
     });
-    print(widgetsOnRowProcessed);
     return Container(
       color: Colors.transparent,
       key: globalKey,
@@ -545,7 +547,7 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
   }
 }
 
-class CrocoFormItemDense extends StatefulWidget {
+class CrocoFormItemDense extends ConsumerStatefulWidget {
   CrocoFormItemDense({
     Key? key,
     String? this.labelText,
@@ -553,6 +555,7 @@ class CrocoFormItemDense extends StatefulWidget {
     bool? this.alone = false,
     Color? this.colorTheme,
     Validation? this.validation,
+    this.globalKey
     }) : super(key: key);
 
     String? labelText;
@@ -560,12 +563,13 @@ class CrocoFormItemDense extends StatefulWidget {
     Color? colorTheme;
     bool? alone;
     Validation? validation;
+    GlobalKey<FormState>? globalKey;
 
   @override
-  State<CrocoFormItemDense> createState() => _CrocoFormItemDenseState();
+  ConsumerState<CrocoFormItemDense> createState() => _CrocoFormItemDenseState();
 }
 
-class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
+class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
 
   late FocusNode node;
   bool focused = false;
@@ -586,6 +590,19 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
         focused = node.hasFocus;
       });
     }
+    if(node.hasFocus == true) {
+      ref.read(formStatePodProvider.notifier).focusedForm(widget.globalKey, true);
+    } 
+
+    if(node.hasFocus == false) {
+      ref.read(formStatePodProvider.notifier).focusedForm(widget.globalKey, false);
+    }
+
+    
+
+
+    
+
   }
 
   @override
@@ -598,15 +615,19 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
 
   @override
   Widget build(BuildContext context) {
+    var focusedPod = ref.watch(formStatePodProvider).firstWhere(((element) => element.globalKey == widget.globalKey)).focused;
+
+ 
     return Container(
       padding: EdgeInsets.all(20),
       alignment: Alignment.topCenter,
       child: TextFormField(
         validator: ((value) {
-          if(widget.validation != null) {
-            return widget.validation!.validation(value);
+          if (focusedPod!) {
+            if(widget.validation != null) {
+              return widget.validation!.validation(value);
+            } else {return null;}       
           }
-           
         }),
         focusNode: node,
         onTap: () {
@@ -618,7 +639,12 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
           fontSize: 14.5,
         ),
         decoration: InputDecoration(
-          errorStyle: TextStyle(
+          errorStyle: !focusedPod! ? TextStyle(
+            inherit: false,
+            color: Colors.transparent,
+            height: 0.001,
+            fontFamily: "Segoe UI"
+          ) : TextStyle(
             fontFamily: "Segoe UI"
           ),
           focusedBorder: UnderlineInputBorder(
@@ -626,6 +652,9 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
               color: widget.colorTheme ?? Theme.of(context).colorScheme.primary
             )
           ),
+          errorBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey[700]!)
+          ) ,
           floatingLabelStyle: TextStyle(
             fontFamily: "Segoe UI",
             color: widget.colorTheme ?? Theme.of(context).colorScheme.primary
@@ -651,26 +680,31 @@ class _CrocoFormItemDenseState extends State<CrocoFormItemDense> {
   }
 }
 
-// I know this is not an ideal solution, but is something that I came up with and it works just fine. I'm open to discuss better solutions though
-class CrocoFormDense extends StatefulWidget {
+// I know this is not an ideal solution, but is something that I came up with and it works more or less fine. I'm open to discuss better solutions though
+class CrocoFormDense extends ConsumerStatefulWidget {
   CrocoFormDense({
     Key? key,
     List<CrocoFormItemDense>? this.children,
-    this.button
+    this.formValidation,
+    this.name
+    
     }) : super(key: key);
 
     List<CrocoFormItemDense>? children;
     Widget? button;
+    FormValidation? formValidation;
+    String? name;
     
 
   @override
-  State<CrocoFormDense> createState() => _CrocoFormDenseState();
+  ConsumerState<CrocoFormDense> createState() => _CrocoFormDenseState();
 }
 
-class _CrocoFormDenseState extends State<CrocoFormDense> {
+class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
 
   List<Widget> processedList = [];
   final formKey = GlobalKey<FormState>();
+  bool? focused = false;
 
   void preProcessor(List<CrocoFormItemDense>? children, Widget? button ) {
 
@@ -679,6 +713,8 @@ class _CrocoFormDenseState extends State<CrocoFormDense> {
 
     for(var crocoFormItem in children!) {
       count++;
+
+      crocoFormItem.globalKey = formKey;
 
       if(crocoFormItem.halfSize == true) {
         if(count < children.length - 1) {
@@ -726,16 +762,21 @@ class _CrocoFormDenseState extends State<CrocoFormDense> {
       
     }
 
-    processedList.add(
-      Container(
-        margin: EdgeInsets.only(left:20),
-        alignment: Alignment.centerLeft,
-        transform: count == 0 ? Matrix4.translationValues(0, -20, 0) : Matrix4.translationValues(0, -20 + (-40 * evenCount), 0),
-        child: SquaredButton(
-          parentGlobalKey: formKey,
-        ),
-      )
-    );
+    if(widget.formValidation == FormValidation.self) {
+
+      processedList.add(
+        Container(
+          margin: EdgeInsets.only(left:20),
+          alignment: Alignment.centerLeft,
+          transform: count == 0 ? Matrix4.translationValues(0, -20, 0) : Matrix4.translationValues(0, -20 + (-40 * evenCount), 0),
+          child: SquaredButton(
+            parentGlobalKey: formKey,
+          ),
+        )
+      );
+    }
+
+    
   }
 
   @override
@@ -743,16 +784,34 @@ class _CrocoFormDenseState extends State<CrocoFormDense> {
     // TODO: implement initState
     super.initState();
     preProcessor(widget.children, widget.button);
+    ref.read(formStatePodProvider.notifier).addFormStatePod(FormStatePod(
+      globalKey: formKey,
+      validationState: false,
+      name: widget.name,
+      focused: false
+    ));
+
   }
  
   @override
   Widget build(BuildContext context) {
+    var focused = ref.watch(formStatePodProvider).firstWhere((element) => element.globalKey == formKey).focused;
+
+
     return Material(
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
         ),
         child: Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          onChanged: (() {
+            if(formKey.currentState!.validate()) {
+              ref.read(formStatePodProvider.notifier).changeValidationStatus(formKey, true);
+            } else {
+              ref.read(formStatePodProvider.notifier).changeValidationStatus(formKey, false);
+            }
+          }),
           key: formKey,
           child: Column(
             children: [

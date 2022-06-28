@@ -158,6 +158,7 @@ class _CrocoGridState extends State<CrocoGrid> {
                   height: tileHeight / 9,
                   width: tileWidth,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Container(
                         margin: EdgeInsets.only(left: 15),
