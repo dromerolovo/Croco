@@ -66,7 +66,17 @@ class MyHomePage extends StatelessWidget {
                 xAxisSquares: 2,
                 yAxisSquares: 2,
                 childOn: Container(
-                  color: Theme.of(context).colorScheme.surface
+                  color: Theme.of(context).colorScheme.surface,
+                  child: CrocoFormDense(
+                    index: 1,
+                    name: "Client Info",
+                    children: [
+                      CrocoFormItemDense(
+                        labelText: "Client Name",
+                        validation: Validation.isEmpty,
+                      )
+                    ]
+                  )
                 ),
               ),
               Tile(
@@ -80,6 +90,19 @@ class MyHomePage extends StatelessWidget {
 
               ),
               Tile(
+                xStartPoint: 3,
+                yStartPoint: 4,
+                xAxisSquares: 3,
+                yAxisSquares: 1,
+                childOn: Container(
+                  alignment: Alignment.centerLeft,
+                  color: Theme.of(context).colorScheme.surface,
+                  child: ConsolidationForm(
+                    index: 1,
+                  )
+                ),
+              ),
+              Tile(
                 header: true,
                 headerText: "Address Manager",
                 extraHeaderInfo: "User records",
@@ -90,6 +113,7 @@ class MyHomePage extends StatelessWidget {
                 childOn: Container(
                   color: Theme.of(context).colorScheme.surface,
                   child: CrocoFormDense(
+                    index: 1,
                     name: "Address Manager",
                     formValidation: FormValidation.self,
                     children: [
@@ -114,17 +138,6 @@ class MyHomePage extends StatelessWidget {
                   ),
                 )
               ),
-              Tile(
-                xStartPoint: 3,
-                yStartPoint: 4,
-                xAxisSquares: 3,
-                yAxisSquares: 1,
-                childOn: Container(
-                  alignment: Alignment.centerLeft,
-                  color: Theme.of(context).colorScheme.surface,
-                  child: ConsolidationForm()
-                ),
-              )
             ]
           )
         )

@@ -8,7 +8,10 @@ import '../../themes/themes.dart';
 class ConsolidationForm extends ConsumerStatefulWidget {
   ConsolidationForm({
     Key? key,
+    this.index
     }) : super(key: key);
+
+    final int? index;
 
 
   @override
@@ -18,7 +21,7 @@ class ConsolidationForm extends ConsumerStatefulWidget {
 class _ConsolidationFormState extends ConsumerState<ConsolidationForm> {
   @override
   Widget build(BuildContext context) {
-    var formsList = ref.watch(formStatePodProvider);
+    var formsList = ref.watch(formStatePodFiltered(widget.index));
     return Container(
       alignment: Alignment.centerLeft,
       color: Theme.of(context).colorScheme.surface,

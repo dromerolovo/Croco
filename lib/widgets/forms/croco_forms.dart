@@ -550,12 +550,13 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
 class CrocoFormItemDense extends ConsumerStatefulWidget {
   CrocoFormItemDense({
     Key? key,
-    String? this.labelText,
-    bool? this.halfSize = false,
-    bool? this.alone = false,
-    Color? this.colorTheme,
-    Validation? this.validation,
-    this.globalKey
+    this.labelText,
+    this.halfSize = false,
+    this.alone = false,
+    this.colorTheme,
+    this.validation,
+    this.globalKey,
+    this.index,
     }) : super(key: key);
 
     String? labelText;
@@ -564,6 +565,7 @@ class CrocoFormItemDense extends ConsumerStatefulWidget {
     bool? alone;
     Validation? validation;
     GlobalKey<FormState>? globalKey;
+    int? index;
 
   @override
   ConsumerState<CrocoFormItemDense> createState() => _CrocoFormItemDenseState();
@@ -615,7 +617,7 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
 
   @override
   Widget build(BuildContext context) {
-    var focusedPod = ref.watch(formStatePodProvider).firstWhere(((element) => element.globalKey == widget.globalKey)).focused;
+    var focusedPod = ref.watch(formStatePodProvider).firstWhere(((element) => element.globalKey == widget.globalKey), orElse: () => FormStatePod()).focused;
 
  
     return Container(
@@ -686,7 +688,8 @@ class CrocoFormDense extends ConsumerStatefulWidget {
     Key? key,
     List<CrocoFormItemDense>? this.children,
     this.formValidation,
-    this.name
+    this.name,
+    this.index
     
     }) : super(key: key);
 
@@ -694,6 +697,7 @@ class CrocoFormDense extends ConsumerStatefulWidget {
     Widget? button;
     FormValidation? formValidation;
     String? name;
+    int? index;
     
 
   @override
@@ -784,20 +788,22 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
     // TODO: implement initState
     super.initState();
     preProcessor(widget.children, widget.button);
-    ref.read(formStatePodProvider.notifier).addFormStatePod(FormStatePod(
-      globalKey: formKey,
-      validationState: false,
-      name: widget.name,
-      focused: false
-    ));
+    Future.delayed(Duration.zero, (){
+      ref.read(formStatePodProvider.notifier).addFormStatePod(FormStatePod(
+        globalKey: formKey,
+        validationState: false,
+        name: widget.name,
+        focused: false,
+        index: widget.index
+      ));
+    });
+    
 
   }
  
   @override
   Widget build(BuildContext context) {
-    var focused = ref.watch(formStatePodProvider).firstWhere((element) => element.globalKey == formKey).focused;
-
-
+    var focused = ref.watch(formStatePodProvider).firstWhere((element) => element.globalKey == formKey, orElse: () => FormStatePod()).focused;
     return Material(
       child: Container(
         decoration: BoxDecoration(
