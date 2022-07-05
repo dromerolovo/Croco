@@ -1,5 +1,7 @@
+import 'package:croco/state/forms_state.dart';
 import 'package:flutter/material.dart';
 import '../croco_base.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Migration to Theme pending
 class SimpleButton extends StatelessWidget {
@@ -118,14 +120,16 @@ class SimpleButtonWithIcon extends StatelessWidget {
   }
 }
 
-class SquaredButton extends StatefulWidget {
+class SquaredButton extends ConsumerStatefulWidget {
   SquaredButton(
     {Key? key,
     this.backgroundColor,
     this.textColor,
     this.text = "Save",
     this.callback,
-    this.parentGlobalKey
+    this.parentGlobalKey,
+    this.index,
+    this.globalKeysList
     }) : super(key: key);
 
     Color? backgroundColor;
@@ -133,12 +137,14 @@ class SquaredButton extends StatefulWidget {
     String? text;
     Function? callback;
     GlobalKey<FormState>? parentGlobalKey;
+    int? index;
+    List<GlobalKey<FormState>>? globalKeysList;
 
   @override
-  State<SquaredButton> createState() => _SquaredButtonState();
+  ConsumerState<SquaredButton> createState() => _SquaredButtonState();
 }
 
-class _SquaredButtonState extends State<SquaredButton> {
+class _SquaredButtonState extends ConsumerState<SquaredButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -150,14 +156,38 @@ class _SquaredButtonState extends State<SquaredButton> {
         child: InkWell(
           splashColor: CrocoBase.lightenColorForHighlight(Theme.of(context).colorScheme.primary),
           onTap: (() {
-            if(widget.parentGlobalKey!.currentState!.validate()) {
 
+            if(widget.parentGlobalKey != null && widget.index == null) {
+              ref.read(formStatePodProvider.notifier).focusedForm(widget.parentGlobalKey, true);
+              Future.delayed(const Duration(seconds: 3), (() =>  ref.read(formStatePodProvider.notifier).focusedForm(widget.parentGlobalKey, false)));
+              Future.delayed(Duration(microseconds: 15), () {
+              if(widget.parentGlobalKey!.currentState!.validate()) {
+                }
+            });
+            } else if(widget.parentGlobalKey == null && widget.index != null) {
+              ref.read(formStatePodProvider.notifier).focusedFormCollection(widget.index, true);
+               Future.delayed(const Duration(seconds: 3), (() =>  ref.read(formStatePodProvider.notifier).focusedFormCollection(widget.index, false)));
+               Future.delayed(Duration(microseconds: 15), () {
+                for(var formKey in widget.globalKeysList!) {
+                  if(formKey.currentState!.validate()) {
+                  }
+                }
+              
+            });
+            } else if(widget.parentGlobalKey != null && widget.index != null) {
+              throw("SquaredButton can't be provided with a globalKey and an index");
+            } else if(widget.parentGlobalKey == null && widget.index == null) {
+              throw("SquaredButton don't have any key or index");
             }
+           
+            
+            
+
             
           }),
           child: Container(
             alignment: Alignment.center,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(5)),
               // color: widget.backgroundColor ?? Theme.of(context).colorScheme.primary
             ),

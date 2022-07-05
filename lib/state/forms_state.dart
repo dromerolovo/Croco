@@ -1,5 +1,8 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/forms/croco_forms.dart' show FormValidation;
 
 @immutable
 class FormStatePod{
@@ -9,7 +12,9 @@ class FormStatePod{
     this.validationState = false,
     this.name,
     this.focused = false,
-    this.index
+    this.index,
+    this.formValidation,
+    this.firedButton = false,
   });
 
   final GlobalKey<FormState>? globalKey;
@@ -17,14 +22,18 @@ class FormStatePod{
   final String? name;
   final bool? focused;
   final int? index;
+  final FormValidation? formValidation;
+  final bool? firedButton;
 
-  FormStatePod copyWith({GlobalKey<FormState>? globalKey, bool? validationState, String? name, bool? focused, int? index}) {
+  FormStatePod copyWith({GlobalKey<FormState>? globalKey, bool? validationState, String? name, bool? focused, int? index, FormValidation? formValidation, bool? firedButton}) {
     return FormStatePod(
       globalKey : globalKey ?? this.globalKey,
       validationState: validationState ?? this.validationState,
       name: name ?? this.name,
       focused: focused ?? this.focused,
-      index: index ?? this.index
+      index: index ?? this.index,
+      formValidation: formValidation ?? this.formValidation,
+      firedButton: firedButton ?? this.firedButton,
 
 
     );
@@ -36,12 +45,10 @@ class FormStatePodNotifier extends StateNotifier<List<FormStatePod>> {
   FormStatePodNotifier() : super([]);
 
   void addFormStatePod(FormStatePod formStatePod) {
-
     state = [...state, formStatePod];
   }
 
   void changeValidationStatus(GlobalKey<FormState>? globalKey, bool status) {
-
     state = [
       for(final formStatePod in state) 
 
@@ -68,7 +75,20 @@ class FormStatePodNotifier extends StateNotifier<List<FormStatePod>> {
       else
 
         formStatePod
+    ];
+  }
 
+  void focusedFormCollection(int? index, bool? focused) {
+    state = [
+      for(final formStatePod in state)
+
+      if(formStatePod.index == index)
+
+      formStatePod.copyWith(focused: focused)
+
+      else 
+
+        formStatePod
     ];
   }
 }
@@ -83,7 +103,6 @@ final formStatePodFiltered = StateProvider.family(((ref, int? index) {
   
   return forms.where((element) => element.index == index);
 }));
-
 
 
 

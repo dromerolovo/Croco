@@ -1,9 +1,7 @@
-import 'package:croco/widgets/croco_grid.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:croco/croco.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -66,8 +64,11 @@ class MyHomePage extends StatelessWidget {
                 xAxisSquares: 2,
                 yAxisSquares: 2,
                 childOn: Container(
-                  color: Theme.of(context).colorScheme.surface,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
                   child: CrocoFormDense(
+                    formValidation: FormValidation.group,
                     index: 1,
                     name: "Client Info",
                     children: [
@@ -80,16 +81,44 @@ class MyHomePage extends StatelessWidget {
                 ),
               ),
               Tile(
+                header: true,
+                headerText: "Description",
+                extraHeaderInfo: "User Records",
                 xStartPoint:1,
                 yStartPoint:3,
                 xAxisSquares:2,
                 yAxisSquares:2,
                 childOn: Container(
                   color: Theme.of(context).colorScheme.surface,
+                  child: DescriptionPanel(
+                    children: [
+                      DescriptionPanelHeader(
+                        headerText: "Overview",
+                      ),
+                      DescriptionText(
+                        textList: const [
+                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
+                          "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ",
+                        ]
+                      ),
+                      DescriptionPanelHeader(
+                        headerText: "Client",
+                      ),
+                      DescriptionText(
+                        textList: const [
+                          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
+                          "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ",
+                        ]
+                      ),
+                    ],
+                  )
                 ),
 
               ),
               Tile(
+                header: true,
+                headerText: "Consolidation",
+                extraHeaderInfo: "User records",
                 xStartPoint: 3,
                 yStartPoint: 4,
                 xAxisSquares: 3,
@@ -113,9 +142,9 @@ class MyHomePage extends StatelessWidget {
                 childOn: Container(
                   color: Theme.of(context).colorScheme.surface,
                   child: CrocoFormDense(
-                    index: 1,
+                    index:1,
                     name: "Address Manager",
-                    formValidation: FormValidation.self,
+                    formValidation: FormValidation.group,
                     children: [
                       CrocoFormItemDense(
                         labelText: "Address",
@@ -133,7 +162,7 @@ class MyHomePage extends StatelessWidget {
                         labelText: "Zone",
                         halfSize: true,
                         alone: true,
-                      )
+                      ),
                     ],
                   ),
                 )

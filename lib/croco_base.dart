@@ -89,7 +89,7 @@ mixin CrocoBase {
   }
 
   //Method to return Box Decoration with box shadow and logic for dark background -> light elements, light background -> dark elements.
-  BoxDecoration getBoxDecoration(Color backgroundColor, bool withRoundBorder, bool withShadow ) {
+  static BoxDecoration getBoxDecoration(Color backgroundColor, bool withRoundBorder, bool withShadow ) {
     return(
       BoxDecoration(
         color: backgroundColor,

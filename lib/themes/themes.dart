@@ -77,7 +77,7 @@ ThemeData deepSea = ThemeData(
     onPrimary: Colors.white,
     brightness: Brightness.dark,
     seedColor: Colors.teal,
-    secondary: Colors.tealAccent[400],
+    secondary: Colors.deepPurple,
     surface: HSLColor.fromAHSL(1, 210, 0.26, 0.15).toColor(),
     background: HSLColor.fromAHSL(1, 211, 0.23, 0.19).toColor(),
     surfaceVariant: HSLColor.fromAHSL(1, 208, 0.23, 0.24).toColor()

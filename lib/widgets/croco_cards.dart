@@ -31,7 +31,7 @@ class CrocoSimpleIconCard extends StatelessWidget with CrocoBase {
     return Container(
       height: 750 / 2.4,
       width: 750 / 2.4 / cardSizeVertical1,
-      decoration: getBoxDecoration(backgroundColor, withRoundBorder, withShadow),
+      decoration: CrocoBase.getBoxDecoration(backgroundColor, withRoundBorder, withShadow),
       alignment: Alignment.topCenter,
       child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -142,7 +142,7 @@ class _CrocoSimpleIconInfoCard extends State<CrocoSimpleIconInfoCard> with Croco
         duration: const Duration(milliseconds: 100),
         width: width,
         height: height ,
-        decoration: getBoxDecoration(widget.backgroundColor, widget.withRoundBorder, widget.withShadow),
+        decoration: CrocoBase.getBoxDecoration(widget.backgroundColor, widget.withRoundBorder, widget.withShadow),
         alignment: Alignment.topLeft,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,

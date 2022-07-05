@@ -1,4 +1,6 @@
+import 'package:croco/croco.dart';
 import 'package:croco/state/forms_state.dart';
+import 'package:croco/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +8,7 @@ import '../../themes/themes.dart';
 
 
 class ConsolidationForm extends ConsumerStatefulWidget {
-  ConsolidationForm({
+  const ConsolidationForm({
     Key? key,
     this.index
     }) : super(key: key);
@@ -19,10 +21,22 @@ class ConsolidationForm extends ConsumerStatefulWidget {
 }
 
 class _ConsolidationFormState extends ConsumerState<ConsolidationForm> {
+
+  List<GlobalKey<FormState>> listOfKeys = [];
+  int count = 0;
+
   @override
   Widget build(BuildContext context) {
-    var formsList = ref.watch(formStatePodFiltered(widget.index));
+    count++;
+    var formsList = ref.watch(formStatePodFiltered(widget.index)).where((element) => element.formValidation == FormValidation.group);
+
+    if(count == 2) {
+      for(var form in formsList) {
+        listOfKeys.add(form.globalKey!);
+      }
+    }
     return Container(
+      margin: const EdgeInsets.only(left: 20),
       alignment: Alignment.centerLeft,
       color: Theme.of(context).colorScheme.surface,
       child: Row(
@@ -31,6 +45,7 @@ class _ConsolidationFormState extends ConsumerState<ConsolidationForm> {
             width: 200,
             height: 120,
             child: Container(
+              padding: EdgeInsets.only(top: 15),
               width: 200,
               height: 120,
               alignment: Alignment.centerLeft,
@@ -73,6 +88,15 @@ class _ConsolidationFormState extends ConsumerState<ConsolidationForm> {
                   ],
                 ),
               ),
+            )
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 70),
+            padding: EdgeInsets.only(bottom: 10),
+            child: SquaredButton(
+              index: widget.index,
+              globalKeysList: listOfKeys,
+
             )
           )
         ]

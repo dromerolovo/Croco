@@ -9,6 +9,7 @@ export './widgets/croco_grid.dart';
 export './themes/themes.dart';
 export './widgets/forms/validators.dart';
 export './widgets/forms/consolidation_form.dart';
+export './widgets/text_based/description_panel.dart';
 
 
 

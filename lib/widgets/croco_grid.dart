@@ -120,6 +120,8 @@ class _CrocoGridState extends State<CrocoGrid> {
         tileHeight = ( sizeOfTileHeight! * y ) + ((y - 1 ) * widget.paddingInBetween!);
         tileWidth = ( sizeOfTileWidth! * x ) + ((x - 1 ) * widget.paddingInBetween!);
 
+        print(tileHeight);
+
       }
 
       calculatingPositionAndSize();
@@ -142,6 +144,8 @@ class _CrocoGridState extends State<CrocoGrid> {
         }
       }
 
+      var calculation = tileHeight / 9;
+
       positionedList.add(
         Positioned(
           top: positionedTop,
@@ -150,12 +154,12 @@ class _CrocoGridState extends State<CrocoGrid> {
             color: tile.backgroundColor ?? Theme.of(context).colorScheme.surface,
             alignment: Alignment.center,
             width: tileWidth,
-            height: tileHeight,
+            height: tileHeight >= 322.7998 ? tileHeight : tileHeight + (35.866 - tileHeight / 9 ),
             child: tile.header == true ? Column(    
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  height: tileHeight / 9,
+                  height: tileHeight < 322.7998 ? 35.866 : tileHeight / 9,
                   width: tileWidth,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -198,6 +202,7 @@ class _CrocoGridState extends State<CrocoGrid> {
                   color: widget.backgroundParentColor ?? Theme.of(context).colorScheme.background
                 ),
                 Container(
+                  height: tileHeight - (tileHeight < 322.7998 ? 35.866 : tileHeight / 9) - 6.7,
                   child: tile.childOn ?? Container()
                 )
               ]
@@ -246,6 +251,7 @@ class _CrocoGridState extends State<CrocoGrid> {
           return 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                controller: ScrollController(),
                 child: Stack(
                   alignment: AlignmentDirectional.topStart,
                   children: [
