@@ -1,8 +1,11 @@
+import 'package:croco/state/forms_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../themes/themes.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class Tile extends StatelessWidget {
-   Tile({
+class Panel extends StatelessWidget {
+   Panel({
     Key? key,
     int? this.xStartPoint = 2,
     int? this.yStartPoint = 2,
@@ -37,14 +40,14 @@ class Tile extends StatelessWidget {
   }
 }
 
-class CrocoGrid extends StatefulWidget {
+class CrocoGrid extends ConsumerStatefulWidget {
   CrocoGrid({
     Key? key,
     int? this.xAxisGridSquares = 8,
     int? this.yAxisGridSquares = 4,
     double? this.externalPadding = 20,
     double? this.paddingInBetween = 10,
-    List<Tile>? this.tilesList,
+    List<Panel>? this.panelsList,
     Color? this.backgroundParentColor,
 
 
@@ -54,15 +57,15 @@ class CrocoGrid extends StatefulWidget {
     int? yAxisGridSquares;
     double? externalPadding;
     double? paddingInBetween;
-    List<Tile>? tilesList;
+    List<Panel>? panelsList;
     Color? backgroundParentColor;
 
 
   @override
-  State<CrocoGrid> createState() => _CrocoGridState();
+  ConsumerState<CrocoGrid> createState() => _CrocoGridState();
 }
 
-class _CrocoGridState extends State<CrocoGrid> {
+class _CrocoGridState extends ConsumerState<CrocoGrid> {
 
   GlobalKey globalKey = GlobalKey();
   double? parentHeight;
@@ -74,7 +77,7 @@ class _CrocoGridState extends State<CrocoGrid> {
   List<Positioned>? stack = [];
 
 
-  List<Positioned> preProcessor(List<Tile> tilesList) {
+  List<Positioned> preProcessor(List<Panel> tilesList) {
     List<List<int>> processingMatrix = [];
     List<Positioned> positionedList = [];
 
@@ -120,7 +123,6 @@ class _CrocoGridState extends State<CrocoGrid> {
         tileHeight = ( sizeOfTileHeight! * y ) + ((y - 1 ) * widget.paddingInBetween!);
         tileWidth = ( sizeOfTileWidth! * x ) + ((x - 1 ) * widget.paddingInBetween!);
 
-        print(tileHeight);
 
       }
 
@@ -228,19 +230,58 @@ class _CrocoGridState extends State<CrocoGrid> {
         sizeOfTileWidth = ((parentWidth !- (widget.xAxisGridSquares! - 1) * widget.paddingInBetween!) -  widget.externalPadding! * 2) / widget.xAxisGridSquares!;
         sizeOfTileHeight = ((parentHeight !- (widget.yAxisGridSquares! - 1) * widget.paddingInBetween!) - widget.externalPadding! * 2) / widget.yAxisGridSquares!;
 
-        stack = preProcessor(widget.tilesList!);
+        stack = preProcessor(widget.panelsList!);
 
-        print("Parent Width: $parentWidth) ParentHeight: $parentHeight");
       });
-
-     
     });
-
-    
   }
+
+  List<Positioned> preProcessorDataPicker(List<DataPicker>? dataPickerList) {
+    List<Positioned> dataPickerListPost = [];
+
+    for(var dataPicker in dataPickerList!) {
+      dataPickerListPost.add(
+        Positioned(
+          top: dataPicker.y! - 50 - 15,
+          left: dataPicker.x! - 260 - 15,
+          child: PhysicalModel(
+            borderRadius: BorderRadius.zero,
+            color: Colors.transparent,
+            elevation: 10,
+            child: Container(
+              alignment: Alignment.center,
+              height: 260,
+              width: 260,
+              color: Theme.of(context).colorScheme.surface,
+              child:  SfDateRangePicker(
+                onSubmit: (p0) {
+                  
+                },
+                showActionButtons: true,
+                headerStyle: DateRangePickerHeaderStyle(
+                  textStyle: TextStyle(
+                    fontFamily: "Segoe UI",
+                    fontSize: 14,
+                    color: CrocoTheme.of(context)!.themeDataExtra!.textColor
+                  )
+                ),
+              )
+            ),
+          )
+        )
+      );
+    }
+
+    return dataPickerListPost;
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
+    var dataPickerList = ref.watch(dataPickerProvider);
+    var dataPickerListPost = preProcessorDataPicker(dataPickerList);
     return Container(
       alignment: Alignment.topLeft,
       key: globalKey,
@@ -260,7 +301,8 @@ class _CrocoGridState extends State<CrocoGrid> {
                       width: 1286,
                       height: 695.599
                     ),
-                    for(var tile in stack!) tile
+                    for(var tile in stack!) tile,
+                    for(var dataPicker in dataPickerListPost ) dataPicker
                   ]
                 ),
               );

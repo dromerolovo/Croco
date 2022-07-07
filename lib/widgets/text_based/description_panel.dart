@@ -130,7 +130,6 @@ class _DescriptionPanelState extends State<DescriptionPanel> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       height = _globalKey.currentContext!.size!.height;
-      print('the new height is $height');
       setState(() {});
     });
   }
@@ -138,7 +137,6 @@ class _DescriptionPanelState extends State<DescriptionPanel> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        print(constraints);
         return Container(
           key: _globalKey,
           padding: EdgeInsets.only(bottom: 15),

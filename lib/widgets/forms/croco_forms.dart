@@ -55,7 +55,7 @@ class CrocoOrnamentIconFormItem extends StatelessWidget {
   }
 } 
 
-//Migration to theme and form state/validation pending
+//NOT SUPPORTED
 class CrocoFormItem extends StatefulWidget {
   CrocoFormItem({
     Key? key,
@@ -183,7 +183,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
   }
 }
 
-//Migration to theme and form state/validation pending
+//NOT SUPPORTED
 class CrocoForm extends StatefulWidget {
   CrocoForm({
     Key? key,
@@ -282,7 +282,7 @@ class _CrocoFormState extends State<CrocoForm> with WidgetsBindingObserver {
   }
 }
 
-//Should not be used directly, only inside other classes.
+//NOT SUPPORTED
 class CrocoInputTextBase extends StatefulWidget {
   CrocoInputTextBase({
     Key? key,
@@ -367,7 +367,7 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
   }
 }
 
-//Migration to theme and form state/validation pending
+//NOT SUPPORTED
 class LogInForm extends StatefulWidget with CrocoBase  {
   LogInForm({
     Key? key,
@@ -559,6 +559,19 @@ class CrocoFormItemDense extends ConsumerStatefulWidget {
     this.index,
     }) : super(key: key);
 
+    CrocoFormItemDense.datePicker({
+      Key? key,
+      this.labelText,
+      this.halfSize = true,
+      this.alone = true,
+      this.colorTheme,
+      this.validation,
+      this.globalKey,
+      this.index,
+    }) : 
+      datePicker = true,
+      super(key: key);
+
     String? labelText;
     bool? halfSize;
     Color? colorTheme;
@@ -566,6 +579,7 @@ class CrocoFormItemDense extends ConsumerStatefulWidget {
     Validation? validation;
     GlobalKey<FormState>? globalKey;
     int? index;
+    bool? datePicker;
 
   @override
   ConsumerState<CrocoFormItemDense> createState() => _CrocoFormItemDenseState();
@@ -577,6 +591,8 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
   bool focused = false;
   late FocusAttachment nodeAttachment;
 
+  GlobalKey globalKey = GlobalKey();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -584,6 +600,19 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
     node = FocusNode();
     node.addListener(handleFocusChange);
     nodeAttachment = node.attach(context);
+
+    if(widget.datePicker == true) {
+
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      RenderBox box = globalKey.currentContext!.findRenderObject() as RenderBox;
+      Offset position = box.localToGlobal(Offset.zero);
+      double y = position.dy;
+      double x = position.dx;
+
+      ref.read(dataPickerProvider.notifier).addDataPicker(DataPicker(globalKey: globalKey, focused: false, x: x, y: y));
+    });
+      
+    }
   }
 
   void handleFocusChange () {
@@ -594,10 +623,15 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
     }
     if(node.hasFocus == true) {
       ref.read(formStatePodProvider.notifier).focusedForm(widget.globalKey, true);
+      if(widget.datePicker == true) {
+        ref.read(dataPickerProvider.notifier).changeFocusStatus(globalKey, true);
+      }
     } 
 
     if(node.hasFocus == false) {
       ref.read(formStatePodProvider.notifier).focusedForm(widget.globalKey, false);
+      if(widget.datePicker == true) {
+      }
     }
   }
 
@@ -609,6 +643,7 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     var focusedPod = ref.watch(formStatePodProvider).firstWhere(((element) => element.globalKey == widget.globalKey), orElse: () => FormStatePod()).focused;
@@ -616,6 +651,8 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
       padding: const EdgeInsets.all(20),
       alignment: Alignment.topCenter,
       child: TextFormField(
+        key: globalKey,
+        readOnly: widget.datePicker == true ? true : false,
         validator: ((value) {
 
           if (focusedPod!) {
@@ -665,7 +702,12 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
           ),
           suffixIcon: Padding(
             padding: const EdgeInsets.only(top:10),
-            child: Icon(
+            child: widget.datePicker == true ? 
+            Icon(
+              Icons.calendar_month,
+              color: focused == false ? Colors.grey[500] : widget.colorTheme ?? Theme.of(context).colorScheme.primary
+            ) :  
+             Icon(
               CupertinoIcons.pen,
               color: focused == false ? Colors.grey[500] : widget.colorTheme ?? Theme.of(context).colorScheme.primary
             ),

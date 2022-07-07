@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../croco_base.dart';
 
-//Migration to theme pending
+//NOT SUPPORTED
 class CrocoSimpleIconCard extends StatelessWidget with CrocoBase {
    CrocoSimpleIconCard({
     Key? key,
@@ -77,7 +77,7 @@ class CrocoSimpleIconCard extends StatelessWidget with CrocoBase {
 }
 
 
-//Migration to theme pending
+//NOT SUPPORTED
 class CrocoSimpleIconInfoCard extends StatefulWidget {
 
     final Icon icon;
@@ -204,7 +204,7 @@ class _CrocoSimpleIconInfoCard extends State<CrocoSimpleIconInfoCard> with Croco
   }
 }
 
-//Migration to theme pending
+//NOT SUPPORTED
 class CrocoStylizedHeaderCard extends StatefulWidget  {
   CrocoStylizedHeaderCard({
     Key? key,

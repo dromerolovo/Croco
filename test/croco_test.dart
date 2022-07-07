@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:croco/croco.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 
 void main() {
@@ -54,8 +55,8 @@ class MyHomePage extends StatelessWidget {
             ],
           ),
           viewChild: CrocoGrid(
-            tilesList: [
-              Tile(
+            panelsList: [
+              Panel(
                 header: true,
                 headerText: "Client Info",
                 extraHeaderInfo: "User records",
@@ -80,7 +81,7 @@ class MyHomePage extends StatelessWidget {
                   )
                 ),
               ),
-              Tile(
+              Panel(
                 header: true,
                 headerText: "Description",
                 extraHeaderInfo: "User Records",
@@ -115,7 +116,7 @@ class MyHomePage extends StatelessWidget {
                 ),
 
               ),
-              Tile(
+              Panel(
                 header: true,
                 headerText: "Consolidation",
                 extraHeaderInfo: "User records",
@@ -131,7 +132,7 @@ class MyHomePage extends StatelessWidget {
                   )
                 ),
               ),
-              Tile(
+              Panel(
                 header: true,
                 headerText: "Address Manager",
                 extraHeaderInfo: "User records",
@@ -158,7 +159,7 @@ class MyHomePage extends StatelessWidget {
                       CrocoFormItemDense(
                         labelText: "Reference",
                       ),
-                      CrocoFormItemDense(
+                      CrocoFormItemDense.datePicker(
                         labelText: "Zone",
                         halfSize: true,
                         alone: true,
@@ -167,6 +168,28 @@ class MyHomePage extends StatelessWidget {
                   ),
                 )
               ),
+              Panel(
+                header: true,
+                headerText: "Date picker",
+                xStartPoint: 6,
+                yStartPoint: 1,
+                xAxisSquares: 2,
+                yAxisSquares: 2,
+                childOn: Container(
+                  padding: EdgeInsets.all(15),
+                  color: Theme.of(context).colorScheme.surface,
+                  alignment: Alignment.center,
+                  child: SfDateRangePicker(
+                    headerStyle: DateRangePickerHeaderStyle(
+                      textStyle: TextStyle(
+                        fontFamily: "Segoe UI",
+                        fontSize: 14,
+                        color: CrocoTheme.of(context)!.themeDataExtra!.textColor
+                      )
+                    ),
+                  )
+                ),
+              )
             ]
           )
         )

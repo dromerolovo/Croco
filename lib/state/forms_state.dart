@@ -7,7 +7,7 @@ import '../widgets/forms/croco_forms.dart' show FormValidation;
 @immutable
 class FormStatePod{
 
-  FormStatePod({
+  const FormStatePod({
     this.globalKey,
     this.validationState = false,
     this.name,
@@ -34,8 +34,6 @@ class FormStatePod{
       index: index ?? this.index,
       formValidation: formValidation ?? this.formValidation,
       firedButton: firedButton ?? this.firedButton,
-
-
     );
   }
 }
@@ -103,6 +101,68 @@ final formStatePodFiltered = StateProvider.family(((ref, int? index) {
   
   return forms.where((element) => element.index == index);
 }));
+
+
+@immutable
+class DataPicker {
+
+  DataPicker({
+
+    this.globalKey,
+    this.focused,
+    this.x,
+    this.y,
+
+  });
+
+  final GlobalKey? globalKey;
+  final bool? focused;
+  final double? x;
+  final double? y;
+
+
+  DataPicker copyWith({GlobalKey? globalKey, bool? focused, double? x, double? y}) {
+
+    return DataPicker(
+
+      globalKey: globalKey ?? this.globalKey,
+      focused: focused ?? this.focused,
+      x: x ?? this.x,
+      y: y ?? this.y
+
+    );
+  }
+}
+
+class DataPickerNotifier extends StateNotifier<List<DataPicker>> {
+
+  DataPickerNotifier() : super([]);
+
+  void addDataPicker(DataPicker dataPicker) {
+
+    state = [...state, dataPicker];
+  }
+
+  void changeFocusStatus(GlobalKey globalKey, bool? focused) {
+
+    state = [
+
+      for(final dataPicker in state)
+
+      if(dataPicker.globalKey == globalKey)
+
+      dataPicker.copyWith(focused: focused)
+
+    ];
+  }
+}
+
+final dataPickerProvider = StateNotifierProvider<DataPickerNotifier, List<DataPicker>>((ref) {
+
+  return DataPickerNotifier();
+  
+});
+
 
 
 
