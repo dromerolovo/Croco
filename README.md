@@ -11,7 +11,7 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-[Documentation](https://generated-impulse-2bc.notion.site/Croco-App-cfde316923dc46dd8be87c93e684e1db) (Notion)
+[<h1>Documentation](https://generated-impulse-2bc.notion.site/Croco-App-cfde316923dc46dd8be87c93e684e1db) (Notion)
 
 TODO: Put a short description of the package here that helps potential users
 know whether this package might be useful for them.
