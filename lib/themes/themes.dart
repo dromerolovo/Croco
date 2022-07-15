@@ -29,6 +29,8 @@ class ThemeDataExtra {
     this.smallTextColor,
     this.onSurfaceVariant,
     this.onSurface,
+    this.formBorderColor,
+    this.logInImage
 
 
   });
@@ -38,6 +40,8 @@ class ThemeDataExtra {
   final Color? smallTextColor;
   final Color? onSurfaceVariant;
   final Color? onSurface;
+  final Color? formBorderColor;
+  final String? logInImage;
 
 }
 
@@ -64,7 +68,9 @@ ThemeDataExtra zenForestExtra = ThemeDataExtra(
   textColor: Colors.grey[700],
   smallTextColor: Colors.grey[700],
   onSurfaceVariant: Colors.grey[100],
-  onSurface: Colors.grey[700]
+  onSurface: Colors.grey[700],
+  formBorderColor: Colors.grey[500],
+  logInImage: 'log_in_view.png'
 );
 
 
@@ -89,7 +95,9 @@ ThemeDataExtra deepSeaExtra = ThemeDataExtra(
   textColor: Colors.grey[100],
   smallTextColor: Colors.grey[50],
   onSurfaceVariant: Colors.grey[100],
-  onSurface: Colors.grey[100]
+  onSurface: Colors.grey[100],
+  formBorderColor: Colors.grey[200],
+  logInImage: 'log_in_view_deepSea.png'
 );
 
 

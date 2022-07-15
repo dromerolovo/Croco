@@ -1,3 +1,4 @@
+import 'package:croco/views/log_in_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:croco/croco.dart';
@@ -15,20 +16,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    return MediaQuery(
-      data: MediaQueryData(),
-      child: ProviderScope(
-        child: CrocoTheme(
-          themeDataExtra: CrocoThemes.deepSea.themeExtra,
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'croco',
-            theme: CrocoThemes.deepSea.theme,
-            home: MyHomePage(),
-          ),
+
+    return CrocoApp(
+      crocoTheme: CrocoThemes.zenForest,
+      home: Scaffold(
+        body: LogInView(
+          logInForm: LogInForm(),
         ),
-      ),
+      )
     );
   }
 }
@@ -74,6 +69,7 @@ class MyHomePage extends StatelessWidget {
                     name: "Client Info",
                     children: [
                       CrocoFormItemDense(
+                        name: "client",
                         labelText: "Client Name",
                         validation: Validation.isEmpty,
                       )
@@ -148,18 +144,22 @@ class MyHomePage extends StatelessWidget {
                     formValidation: FormValidation.group,
                     children: [
                       CrocoFormItemDense(
+                        name: "address",
                         labelText: "Address",
                         halfSize: true,
                         validation: Validation.isEmpty,
                       ),
                       CrocoFormItemDense(
+                        name: "district",
                         labelText: "District",
                         halfSize: true,
                       ),
                       CrocoFormItemDense(
+                        name: "reference",
                         labelText: "Reference",
                       ),
                       CrocoFormItemDense.datePicker(
+                        name: "zone",
                         labelText: "Zone",
                         halfSize: true,
                         alone: true,
@@ -168,28 +168,6 @@ class MyHomePage extends StatelessWidget {
                   ),
                 )
               ),
-              Panel(
-                header: true,
-                headerText: "Date picker",
-                xStartPoint: 6,
-                yStartPoint: 1,
-                xAxisSquares: 2,
-                yAxisSquares: 2,
-                childOn: Container(
-                  padding: EdgeInsets.all(15),
-                  color: Theme.of(context).colorScheme.surface,
-                  alignment: Alignment.center,
-                  child: SfDateRangePicker(
-                    headerStyle: DateRangePickerHeaderStyle(
-                      textStyle: TextStyle(
-                        fontFamily: "Segoe UI",
-                        fontSize: 14,
-                        color: CrocoTheme.of(context)!.themeDataExtra!.textColor
-                      )
-                    ),
-                  )
-                ),
-              )
             ]
           )
         )

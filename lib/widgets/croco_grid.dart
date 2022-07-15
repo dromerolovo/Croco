@@ -256,6 +256,26 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
               child:  SfDateRangePicker(
                 onSubmit: (p0) {
                   
+                  var verification = ref.read(formStatePodProvider.notifier).state[1].validationState;
+                  RegExp exp = RegExp(r"([^\s]+)");
+                  var date = exp.firstMatch(p0.toString())!.group(0);
+                  //For some reason the acion of the controller is making the entire form bypass validation. 
+                  //provisionally im going to change the state after the controller action. With the following line
+                  //ref.read(formStatePodProvider.notifier).changeValidationStatus(dataPicker.parentKey, false);
+                  
+
+                  dataPicker.controller!.value = TextEditingValue(
+                    text: date!
+                  );
+
+                  if(verification == false) { 
+                    ref.read(formStatePodProvider.notifier).changeValidationStatus(dataPicker.parentKey, false);
+                  }
+                
+                  ref.read(dataPickerProvider.notifier).changeFocusStatus(dataPicker.globalKey!, false);
+                },
+                onCancel: () {
+                  ref.read(dataPickerProvider.notifier).changeFocusStatus(dataPicker.globalKey!, false);
                 },
                 showActionButtons: true,
                 headerStyle: DateRangePickerHeaderStyle(
@@ -280,7 +300,7 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
 
   @override
   Widget build(BuildContext context) {
-    var dataPickerList = ref.watch(dataPickerProvider);
+    var dataPickerList = ref.watch(dataPickerProvider).where((element) => element.focused == true).toList();
     var dataPickerListPost = preProcessorDataPicker(dataPickerList);
     return Container(
       alignment: Alignment.topLeft,

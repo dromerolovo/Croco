@@ -59,16 +59,16 @@ class CrocoOrnamentIconFormItem extends StatelessWidget {
 class CrocoFormItem extends StatefulWidget {
   CrocoFormItem({
     Key? key,
-    FormItemSize? this.formItemSize = FormItemSize.medium,
-    String? this.text = "Lorem Ipsum",
-    bool? this.extraInfoIcon = false,
-    FormItemOrnament? this.ornament,
-    Icon? this.ornamentIcon = const Icon(Icons.account_circle, color: Colors.grey, size: 20),
-    Color? this.color = Colors.lightGreen,
-    bool? this.password = false,
-    double? this.textSize = 14,
-    bool? this.roundBorders = true,
-    Responsiveness? this.responsiveness = Responsiveness.standart,
+    this.formItemSize = FormItemSize.medium,
+    this.text = "Lorem Ipsum",
+    this.extraInfoIcon = false,
+    this.ornament,
+    this.ornamentIcon = const Icon(Icons.account_circle, color: Colors.grey, size: 20),
+    this.color,
+    this.password = false,
+    this.textSize = 14,
+    this.roundBorders = true,
+    this.responsiveness = Responsiveness.standart,
     }) : 
     super(key: key);
 
@@ -117,10 +117,6 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
                 widget.formItemSize!.value * MediaQuery.of(context).size.width : null, 
                 height: 25, 
                 color: Colors.transparent),
-            //   LimitedBox(
-            //   maxWidth: MediaQuery.of(context).size.width > 1200 ? formItemSize!.value * MediaQuery.of(context).size.width : formItemSize!.value * 1200,
-            //   child: CrocoInputTextBase(), //Just in case....
-            // ),
               SizedBox(
                 width: widget.responsiveness == Responsiveness.standart ? 
                   MediaQuery.of(context).size.width > 1200 ? widget.formItemSize!.value * MediaQuery.of(context).size.width 
@@ -144,7 +140,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
               child: SelectableText(
                 widget.text!,
                 style: TextStyle(
-                  color: Colors.grey[700],
+                  color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
                   fontSize: widget.textSize,
                 ),
               ),
@@ -158,7 +154,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
                 onTap: (){},
                 child: Icon(
                   Icons.info,
-                  color: widget.color!,
+                  color: widget.color ?? Theme.of(context).colorScheme.primary,
                   size: 20
                 ),
               )
@@ -170,7 +166,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
                 height:30,
                 decoration: BoxDecoration(
                   border: Border(
-                    right: BorderSide(color: focused! ? widget.color! : Colors.grey)
+                    right: BorderSide(color: focused! ? widget.color! : CrocoTheme.of(context)!.themeDataExtra!.onSurface!)
                   )
                 ),
                 child: widget.ornamentIcon
@@ -339,7 +335,7 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       obscureText: widget.password == true ? true : false,
       focusNode: node,
       onTap:() {
@@ -352,9 +348,12 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
         decoration: InputDecoration(
           hoverColor: widget.color!,
           isDense: true,
-          contentPadding: widget.prefix! ? const EdgeInsets.only(top:10, bottom: 10, left:32) : const EdgeInsets.only(top:10, bottom: 10, left:2),
-          border:  OutlineInputBorder(
-            borderRadius: widget.roundBorders == true ? BorderRadius.circular(10) : BorderRadius.zero
+          contentPadding: widget.prefix! ? const EdgeInsets.only(top:10, bottom: 10, left:32) : const EdgeInsets.only(top:10, bottom: 10, left:10),
+          enabledBorder:  OutlineInputBorder(
+            borderRadius: widget.roundBorders == true ? BorderRadius.circular(10) : BorderRadius.zero,
+            borderSide: BorderSide(
+              color: CrocoTheme.of(context)!.themeDataExtra!.formBorderColor!
+            )
           ),
           focusedBorder:  OutlineInputBorder(
             borderRadius: widget.roundBorders == true ? BorderRadius.circular(10) : BorderRadius.zero,
@@ -371,11 +370,11 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
 class LogInForm extends StatefulWidget with CrocoBase  {
   LogInForm({
     Key? key,
-    String? this.title = "Welcome Back",
-    String? this.description = "Welcome back! Please enter your credentials",
-    Color? this.themeColor,
-    bool? this.roundBorders = true,
-    bool? this.centerHeaderText = false
+    this.title = "Welcome Back",
+    this.description = "Welcome back! Please enter your credentials",
+    this.themeColor,
+    this.roundBorders = true,
+    this.centerHeaderText = false
     }) : super(key: key);
 
     String? title;
@@ -396,20 +395,17 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
   bool focused = false;
   Color? themeColorLight;
   Color? bordersColor;
-  Color? themeColor;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    widget.themeColor == null ? themeColor = Theme.of(context).colorScheme.primary : themeColor = widget.themeColor;
-
-    themeColorLight = CrocoBase.lightenColorForHighlight(themeColor!, 0.3);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(top: 50),
       height: height,
       width: width,
       alignment: Alignment.center,
@@ -421,7 +417,7 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
             alignment: widget.centerHeaderText == false ? Alignment.topLeft : Alignment.center,
             child: SelectableText(
               style: TextStyle(
-                color: Colors.grey[700],
+                color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
@@ -434,7 +430,7 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
             child: SelectableText(
               "Welcome back! Please enter your credentials.",
               style: TextStyle(
-                color: Colors.grey[700]
+                color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
               )
             )
           ),
@@ -442,18 +438,19 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
             alignment: Alignment.topLeft,
             margin: EdgeInsets.only(top: 24, left: 12, right: 26),
             child: CrocoFormItem(
-              color: themeColor,
+              color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
               responsiveness: Responsiveness.standart,
               textSize: 12,
               text : "Username",
               roundBorders: widget.roundBorders,
+            
             )
           ),
           Container(
             alignment: Alignment.topLeft,
             margin: EdgeInsets.only(top: 20, left: 12, right: 26),
             child: CrocoFormItem(
-              color: themeColor,
+              color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
               responsiveness: Responsiveness.standart,
               textSize: 12,
               password: true,
@@ -479,7 +476,7 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
                 duration: Duration(milliseconds: 500),
                 style: TextStyle(
                     fontWeight: focused ? FontWeight.bold : FontWeight.normal,
-                    color: themeColor,
+                    color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
                     fontSize: 12
                   ),
                 child: Text(
@@ -492,8 +489,8 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
             margin: EdgeInsets.only(left: 12, right: 28, top: 20),
             alignment: Alignment.topLeft,
             child: SimpleButton(
-              backgroundColor: themeColor,
-              splashColor: themeColorLight,
+              backgroundColor: widget.themeColor ?? Theme.of(context).colorScheme.primary,
+              splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
               roundBorders: widget.roundBorders,
             )
           ),
@@ -501,7 +498,7 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
             margin: EdgeInsets.only(left: 12, right: 28, top: 20),
             alignment: Alignment.topLeft,
             child: SimpleButtonWithIcon(
-              splashColor: themeColorLight,
+              splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
               roundBorders: widget.roundBorders,
             )
           ),
@@ -529,8 +526,8 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
                           child: Text(
                             "Sign up",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: themeColor
+                              fontWeight: FontWeight.w700,
+                              color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
                             )
                           )
                         ),
@@ -557,6 +554,7 @@ class CrocoFormItemDense extends ConsumerStatefulWidget {
     this.validation,
     this.globalKey,
     this.index,
+    this.name
     }) : super(key: key);
 
     CrocoFormItemDense.datePicker({
@@ -568,6 +566,8 @@ class CrocoFormItemDense extends ConsumerStatefulWidget {
       this.validation,
       this.globalKey,
       this.index,
+      this.name,
+      this.callback
     }) : 
       datePicker = true,
       super(key: key);
@@ -580,6 +580,8 @@ class CrocoFormItemDense extends ConsumerStatefulWidget {
     GlobalKey<FormState>? globalKey;
     int? index;
     bool? datePicker;
+    String? name;
+    Function? callback;
 
   @override
   ConsumerState<CrocoFormItemDense> createState() => _CrocoFormItemDenseState();
@@ -592,6 +594,7 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
   late FocusAttachment nodeAttachment;
 
   GlobalKey globalKey = GlobalKey();
+  TextEditingController controller = TextEditingController(text: "");
 
   @override
   void initState() {
@@ -609,7 +612,14 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
       double y = position.dy;
       double x = position.dx;
 
-      ref.read(dataPickerProvider.notifier).addDataPicker(DataPicker(globalKey: globalKey, focused: false, x: x, y: y));
+      ref.read(dataPickerProvider.notifier).addDataPicker(DataPicker(
+        globalKey: globalKey, 
+        focused: false, 
+        x: x, 
+        y: y, 
+        controller: controller,
+        parentKey: widget.globalKey
+      ));
     });
       
     }
@@ -623,9 +633,6 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
     }
     if(node.hasFocus == true) {
       ref.read(formStatePodProvider.notifier).focusedForm(widget.globalKey, true);
-      if(widget.datePicker == true) {
-        ref.read(dataPickerProvider.notifier).changeFocusStatus(globalKey, true);
-      }
     } 
 
     if(node.hasFocus == false) {
@@ -638,6 +645,7 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
   @override
   void dispose() {
     // TODO: implement dispose
+    controller.dispose();
     node.removeListener(handleFocusChange);
     node.dispose();
     super.dispose();
@@ -651,10 +659,15 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
       padding: const EdgeInsets.all(20),
       alignment: Alignment.topCenter,
       child: TextFormField(
+        //TODO -> onSave: 
+        onSaved: ((newValue) {
+          widget.callback!(newValue);
+          controller.text = "";
+        }),
+        controller: controller,
         key: globalKey,
-        readOnly: widget.datePicker == true ? true : false,
+        // readOnly: widget.datePicker == true ? true : false,
         validator: ((value) {
-
           if (focusedPod!) {
             if(widget.validation != null) {
               return widget.validation!.validation(value);
@@ -703,9 +716,17 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
           suffixIcon: Padding(
             padding: const EdgeInsets.only(top:10),
             child: widget.datePicker == true ? 
-            Icon(
-              Icons.calendar_month,
-              color: focused == false ? Colors.grey[500] : widget.colorTheme ?? Theme.of(context).colorScheme.primary
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: (){
+                  ref.read(dataPickerProvider.notifier).changeFocusStatus(globalKey, true);
+                },
+                child: Icon(
+                  Icons.calendar_month,
+                  color: focused == false ? Colors.grey[500] : widget.colorTheme ?? Theme.of(context).colorScheme.primary
+                ),
+              ),
             ) :  
              Icon(
               CupertinoIcons.pen,
@@ -726,7 +747,8 @@ class CrocoFormDense extends ConsumerStatefulWidget {
     this.children,
     this.formValidation,
     this.name,
-    this.index
+    this.index,
+    this.objectIdentifier
     
     }) : super(key: key);
 
@@ -735,6 +757,7 @@ class CrocoFormDense extends ConsumerStatefulWidget {
     FormValidation? formValidation;
     String? name;
     int? index;
+    String? objectIdentifier;
     
 
   @override
@@ -746,6 +769,7 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
   List<Widget> processedList = [];
   final formKey = GlobalKey<FormState>();
   bool? focused = false;
+  Map<dynamic, dynamic> data = {};
 
   void preProcessor(List<CrocoFormItemDense>? children, Widget? button ) {
 
@@ -756,6 +780,9 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
       count++;
 
       crocoFormItem.globalKey = formKey;
+      crocoFormItem.callback = 
+      (val) => (data[crocoFormItem.name] = val);
+      
 
       if(crocoFormItem.halfSize == true) {
         if(count < children.length - 1) {
@@ -818,9 +845,7 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
           ),
         )
       );
-    }
-
-    
+    } 
   }
 
   @override
@@ -838,7 +863,6 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
         formValidation: widget.formValidation
       ));
     });
-    
 
   }
  

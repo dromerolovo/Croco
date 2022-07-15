@@ -1,4 +1,4 @@
-import 'dart:html';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +15,7 @@ class FormStatePod{
     this.index,
     this.formValidation,
     this.firedButton = false,
+    this.objectIdentifier,
   });
 
   final GlobalKey<FormState>? globalKey;
@@ -24,6 +25,7 @@ class FormStatePod{
   final int? index;
   final FormValidation? formValidation;
   final bool? firedButton;
+  final String? objectIdentifier;
 
   FormStatePod copyWith({GlobalKey<FormState>? globalKey, bool? validationState, String? name, bool? focused, int? index, FormValidation? formValidation, bool? firedButton}) {
     return FormStatePod(
@@ -112,6 +114,8 @@ class DataPicker {
     this.focused,
     this.x,
     this.y,
+    this.controller,
+    this.parentKey
 
   });
 
@@ -119,16 +123,20 @@ class DataPicker {
   final bool? focused;
   final double? x;
   final double? y;
+  final TextEditingController? controller;
+  final GlobalKey<FormState>? parentKey;
 
 
-  DataPicker copyWith({GlobalKey? globalKey, bool? focused, double? x, double? y}) {
+  DataPicker copyWith({GlobalKey? globalKey, bool? focused, double? x, double? y, TextEditingController? controller, GlobalKey<FormState>? parentKey}) {
 
     return DataPicker(
 
       globalKey: globalKey ?? this.globalKey,
       focused: focused ?? this.focused,
       x: x ?? this.x,
-      y: y ?? this.y
+      y: y ?? this.y,
+      controller: controller ?? this.controller,
+      parentKey: parentKey ?? this.parentKey
 
     );
   }

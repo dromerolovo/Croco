@@ -10,10 +10,12 @@ import '../../themes/themes.dart';
 class ConsolidationForm extends ConsumerStatefulWidget {
   const ConsolidationForm({
     Key? key,
-    this.index
+    this.index,
+    this.objectIdentifier
     }) : super(key: key);
 
     final int? index;
+    final String? objectIdentifier;
 
 
   @override
