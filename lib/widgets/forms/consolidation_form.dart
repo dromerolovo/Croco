@@ -1,5 +1,5 @@
 import 'package:croco/croco.dart';
-import 'package:croco/state/forms_state.dart';
+import 'package:croco/providers/forms_state.dart';
 import 'package:croco/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:avatar_glow/avatar_glow.dart';

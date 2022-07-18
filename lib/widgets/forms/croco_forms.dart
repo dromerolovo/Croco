@@ -1,11 +1,12 @@
 import 'package:croco/croco.dart';
 import 'package:flutter/cupertino.dart';
-import './validators.dart';
 import '../buttons.dart';
 import 'package:flutter/material.dart';
-import '../../croco_base.dart';
-import '../../state/forms_state.dart';
+import '../../providers/forms_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
+import '../../firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 enum FormItemSize {small, medium, large, xlarge}
 
@@ -54,130 +55,6 @@ class CrocoOrnamentIconFormItem extends StatelessWidget {
     );
   }
 } 
-
-//NOT SUPPORTED
-class CrocoFormItem extends StatefulWidget {
-  CrocoFormItem({
-    Key? key,
-    this.formItemSize = FormItemSize.medium,
-    this.text = "Lorem Ipsum",
-    this.extraInfoIcon = false,
-    this.ornament,
-    this.ornamentIcon = const Icon(Icons.account_circle, color: Colors.grey, size: 20),
-    this.color,
-    this.password = false,
-    this.textSize = 14,
-    this.roundBorders = true,
-    this.responsiveness = Responsiveness.standart,
-    }) : 
-    super(key: key);
-
-    FormItemSize? formItemSize;
-    String? text;
-    bool? extraInfoIcon;
-    FormItemOrnament? ornament;
-    Icon? ornamentIcon;
-    Color? color;
-    bool? password;
-    double? textSize;
-    bool? roundBorders;
-    Responsiveness? responsiveness;
-
-  @override
-  State<CrocoFormItem> createState() => _CrocoFormItemState();
-}
-
-class _CrocoFormItemState extends State<CrocoFormItem> {
-
-  bool? focused = false;
-  double? widthValue;
-
-  void getWidthValue(BuildContext context) {
-    if(widthValue == null) {
-      widthValue = MediaQuery.of(context).size.width;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    getWidthValue(context);
-    return Container(
-      width: widget.responsiveness == Responsiveness.standart ? 
-        MediaQuery.of(context).size.width > 1200 ? widget.formItemSize!.value * MediaQuery.of(context).size.width : widget.formItemSize!.value * 1200
-        : widget.formItemSize!.value * widthValue!,
-      alignment: Alignment.centerLeft,
-      child: Center(
-        child: Stack(
-          clipBehavior: Clip.none,
-          children : [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-              Container(width: widget.responsiveness == Responsiveness.standart ? 
-                widget.formItemSize!.value * MediaQuery.of(context).size.width : null, 
-                height: 25, 
-                color: Colors.transparent),
-              SizedBox(
-                width: widget.responsiveness == Responsiveness.standart ? 
-                  MediaQuery.of(context).size.width > 1200 ? widget.formItemSize!.value * MediaQuery.of(context).size.width 
-                  : widget.formItemSize!.value * 1200 : widget.formItemSize!.value * widthValue!,
-                child: CrocoInputTextBase(
-                  roundBorders: widget.roundBorders,
-                  password: widget.password,
-                  color: widget.color!,
-                  prefix: widget.ornament != null ? true : false,
-                  callback: (val) => Future.delayed(Duration.zero, (() {
-                    setState(() {
-                      focused = val;
-                    });
-                  }))
-                  )
-                ),
-              ]
-            ),
-            Positioned(
-              bottom: 40,
-              child: SelectableText(
-                widget.text!,
-                style: TextStyle(
-                  color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
-                  fontSize: widget.textSize,
-                ),
-              ),
-            ),
-            widget.extraInfoIcon! ? 
-            Positioned(
-              bottom: 38,
-              left: 95,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: (){},
-                child: Icon(
-                  Icons.info,
-                  color: widget.color ?? Theme.of(context).colorScheme.primary,
-                  size: 20
-                ),
-              )
-            ) : SizedBox.shrink(),
-            widget.ornament != null ? Positioned(
-              top:25,
-              child: Container(
-                width: 30,
-                height:30,
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(color: focused! ? widget.color! : CrocoTheme.of(context)!.themeDataExtra!.onSurface!)
-                  )
-                ),
-                child: widget.ornamentIcon
-              )
-            ) : SizedBox.shrink()
-          ]
-        ),
-      ),
-    );
-  }
-}
 
 //NOT SUPPORTED
 class CrocoForm extends StatefulWidget {
@@ -279,14 +156,167 @@ class _CrocoFormState extends State<CrocoForm> with WidgetsBindingObserver {
 }
 
 //NOT SUPPORTED
+class CrocoFormItem extends StatefulWidget {
+  CrocoFormItem({
+    Key? key,
+    this.formItemSize = FormItemSize.medium,
+    this.text = "Lorem Ipsum",
+    this.extraInfoIcon = false,
+    this.ornament,
+    this.ornamentIcon = const Icon(Icons.account_circle, color: Colors.grey, size: 20),
+    this.color,
+    this.password = false,
+    this.textSize = 14,
+    this.roundBorders = true,
+    this.responsiveness = Responsiveness.standart,
+    this.callback
+    }) : 
+    super(key: key);
+
+    FormItemSize? formItemSize;
+    String? text;
+    bool? extraInfoIcon;
+    FormItemOrnament? ornament;
+    Icon? ornamentIcon;
+    Color? color;
+    bool? password;
+    double? textSize;
+    bool? roundBorders;
+    Responsiveness? responsiveness;
+    Function? callback;
+
+  @override
+  State<CrocoFormItem> createState() => _CrocoFormItemState();
+}
+
+class _CrocoFormItemState extends State<CrocoFormItem> {
+
+  bool focused = false;
+  double? widthValue;
+  ValueNotifier<String> formData = ValueNotifier("");
+
+  void getWidthValue(BuildContext context) {
+    if(widthValue == null) {
+      widthValue = MediaQuery.of(context).size.width;
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    formData.addListener(() {
+      widget.callback!(formData.value);
+    });
+  }
+
+  @override
+  void dispose() {
+    
+    super.dispose();
+    formData.dispose();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    //Here is the problem
+    
+
+    getWidthValue(context);
+    return Container(
+      width: widget.responsiveness == Responsiveness.standart ? 
+        MediaQuery.of(context).size.width > 1200 ? widget.formItemSize!.value * MediaQuery.of(context).size.width : widget.formItemSize!.value * 1200
+        : widget.formItemSize!.value * widthValue!,
+      alignment: Alignment.centerLeft,
+      child: Center(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+              Container(width: widget.responsiveness == Responsiveness.standart ? 
+                widget.formItemSize!.value * MediaQuery.of(context).size.width : null, 
+                height: 25, 
+                color: Colors.transparent),
+              SizedBox(
+                width: widget.responsiveness == Responsiveness.standart ? 
+                  MediaQuery.of(context).size.width > 1200 ? widget.formItemSize!.value * MediaQuery.of(context).size.width 
+                  : widget.formItemSize!.value * 1200 : widget.formItemSize!.value * widthValue!,
+                child: CrocoInputTextBase(
+                  roundBorders: widget.roundBorders,
+                  password: widget.password,
+                  color: widget.color!,
+                  prefix: widget.ornament != null ? true : false,
+                  callbackLogIn: (val) {
+                    setState(() {
+                    formData.value = val;
+                    });
+                  }, 
+                  callback: (val) => 
+                    setState(() {
+                      focused = val;
+                    })
+                  )
+                ),
+              ]
+            ),
+            Positioned(
+              bottom: 40,
+              child: SelectableText(
+                widget.text!,
+                style: TextStyle(
+                  color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
+                  fontSize: widget.textSize,
+                ),
+              ),
+            ),
+            widget.extraInfoIcon! ? 
+            Positioned(
+              bottom: 38,
+              left: 95,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: (){},
+                child: Icon(
+                  Icons.info,
+                  color: widget.color ?? Theme.of(context).colorScheme.primary,
+                  size: 20
+                ),
+              )
+            ) : SizedBox.shrink(),
+            widget.ornament != null ? Positioned(
+              top:25,
+              child: Container(
+                width: 30,
+                height:30,
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(color: focused ? widget.color! : CrocoTheme.of(context)!.themeDataExtra!.onSurface!)
+                  )
+                ),
+                child: widget.ornamentIcon
+              )
+            ) : SizedBox.shrink()
+          ]
+        ),
+      ),
+    );
+  }
+}
+
+//NOT SUPPORTED
 class CrocoInputTextBase extends StatefulWidget {
   CrocoInputTextBase({
     Key? key,
-    bool? this.prefix = false,
-    Function? this.callback,
-    Color? this.color,
-    bool? this.password,
-    bool? this.roundBorders = true,
+    this.prefix = false,
+    this.callback,
+    this.color,
+    this.password,
+    this.roundBorders = true,
+    this.callbackLogIn
 
     }) : super(key: key);
 
@@ -295,6 +325,7 @@ class CrocoInputTextBase extends StatefulWidget {
     Color?  color;
     bool? password;
     bool? roundBorders;
+    Function ? callbackLogIn;
 
   @override
   State<CrocoInputTextBase> createState() => _CrocoInputTextBaseState();
@@ -305,6 +336,8 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
   late FocusNode node;
   bool focused = false;
   late FocusAttachment nodeAttachment;
+
+  TextEditingController controller = TextEditingController(text: "");
 
   @override
   void initState() {
@@ -336,8 +369,14 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+
+      controller: controller,
       obscureText: widget.password == true ? true : false,
       focusNode: node,
+      onChanged: (value) {
+        widget.callbackLogIn!(value);
+        setState(() {});
+      },
       onTap:() {
         node.requestFocus();
       },
@@ -366,7 +405,7 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
   }
 }
 
-//NOT SUPPORTED
+//ONLY SUPPORTED FOR MAINVIEW
 class LogInForm extends StatefulWidget with CrocoBase  {
   LogInForm({
     Key? key,
@@ -396,14 +435,42 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
   Color? themeColorLight;
   Color? bordersColor;
 
+  Map<dynamic, dynamic> formData = {};
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
   }
 
+  void onSubmitCallback(Map<dynamic, dynamic> data) async {
+
+    late String username;
+    late String password;
+
+    username = data['username'];
+    password = data['password'];
+
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: username, 
+        password: password
+      );
+    } on FirebaseAuthException catch (e) {
+      if(e.code == 'user-not-found') {
+        print("N user found for that email");
+      } else if(e.code == "wrong-password") {
+        print("Wrong password provider for that user");
+      } else {
+        print(e);
+      }
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(formData);
     return Container(
       padding: EdgeInsets.only(top: 50),
       height: height,
@@ -443,7 +510,12 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
               textSize: 12,
               text : "Username",
               roundBorders: widget.roundBorders,
-            
+              callback: (val) {
+                setState(() {
+                  formData['username'] = val;
+                });
+              } 
+                
             )
           ),
           Container(
@@ -456,6 +528,10 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
               password: true,
               text : "Password",
               roundBorders: widget.roundBorders,
+              callback: (val) =>
+              setState(() {
+                formData['password'] = val;
+              }) 
             )
           ),
           AnimatedContainer(
@@ -492,6 +568,9 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
               backgroundColor: widget.themeColor ?? Theme.of(context).colorScheme.primary,
               splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
               roundBorders: widget.roundBorders,
+              callback: () {
+                 onSubmitCallback(formData);
+              },
             )
           ),
           Container(

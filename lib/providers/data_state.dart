@@ -37,3 +37,6 @@ final formDataProvider = StateNotifierProvider<FormDataNotifier, List<FormData>>
 
   return FormDataNotifier();
 });
+
+
+final userData = FutureProvider((ref) => <dynamic, dynamic>{});

@@ -1,4 +1,4 @@
-import 'package:croco/state/forms_state.dart';
+import 'package:croco/providers/forms_state.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../croco_base.dart';
@@ -8,16 +8,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SimpleButton extends StatelessWidget {
   SimpleButton({
     Key? key,
-    Color? this.backgroundColor,
-    bool? this.roundBorders = true,
-    Color? this.fontColor = Colors.white,
-    Color? this.splashColor = const Color(0xFFC5E1A5)
+    this.backgroundColor,
+    this.roundBorders = true,
+    this.fontColor = Colors.white,
+    this.splashColor = const Color(0xFFC5E1A5),
+    this.callback,
     }) : super(key: key);
 
     Color? backgroundColor;
     bool? roundBorders;
     Color? fontColor;
     Color? splashColor;
+    Function? callback;
 
 
   @override
@@ -29,7 +31,7 @@ class SimpleButton extends StatelessWidget {
             borderRadius: roundBorders! ? BorderRadius.circular(10) : BorderRadius.circular(0)
           ),
           splashColor: splashColor,
-          onTap: (() {}),
+          onTap: (() { callback!(); }),
           child: Ink(
             decoration: BoxDecoration(
                 borderRadius: roundBorders! ? BorderRadius.circular(10) : BorderRadius.circular(0),
