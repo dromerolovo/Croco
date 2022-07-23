@@ -1,12 +1,11 @@
-import 'package:croco/views/log_in_view.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:croco/croco.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 
-void main() {
-  runApp(const MyApp());
+
+
+void main() async {
+  initializeCrocoApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,11 +17,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return CrocoApp(
-      crocoTheme: CrocoThemes.zenForest,
+      crocoTheme: CrocoThemes.deepSea,
       home: Scaffold(
         body: LogInView(
           logInForm: LogInForm(),
-        ),
+        )
       )
     );
   }

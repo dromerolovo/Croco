@@ -12,6 +12,8 @@ environment:
 dependencies:
   avatar_glow: ^2.0.2
   cupertino_icons: ^1.0.5
+  firebase_auth: ^3.4.2
+  firebase_core: ^1.19.2
   flutter:
     sdk: flutter
   flutter_riverpod: ^1.0.4

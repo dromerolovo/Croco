@@ -1,27 +1,31 @@
-import 'package:croco/state/forms_state.dart';
+import 'package:croco/providers/forms_state.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../croco_base.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Migration to Theme pending
-class SimpleButton extends StatelessWidget {
+class SimpleButton extends ConsumerWidget {
   SimpleButton({
     Key? key,
-    Color? this.backgroundColor,
-    bool? this.roundBorders = true,
-    Color? this.fontColor = Colors.white,
-    Color? this.splashColor = const Color(0xFFC5E1A5)
+    this.backgroundColor,
+    this.roundBorders = true,
+    this.fontColor = Colors.white,
+    this.splashColor = const Color(0xFFC5E1A5),
+    this.callback,
+    this.parentKey
     }) : super(key: key);
 
     Color? backgroundColor;
     bool? roundBorders;
     Color? fontColor;
     Color? splashColor;
+    Function? callback;
+    GlobalKey<FormState>? parentKey;
 
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Material(
       child: SizedBox(
         child: InkWell(
@@ -29,7 +33,23 @@ class SimpleButton extends StatelessWidget {
             borderRadius: roundBorders! ? BorderRadius.circular(10) : BorderRadius.circular(0)
           ),
           splashColor: splashColor,
-          onTap: (() {}),
+          onTap: (() {
+            callback!();
+            // Future.delayed(Duration(milliseconds: 400), (){
+              
+            //   parentKey!.currentState!.validate(); 
+            // });
+
+            Future.delayed(Duration(milliseconds: 3000), (){
+              parentKey!.currentState!.reset();
+              ref.read(logInFormProvider.notifier).changeFocusStatus(
+                usernameOnError: false,
+                passwordOnError: false,
+                firebaseAuthMessage: null,
+                arrangeFormTitle: 0
+              );
+              });
+            }),
           child: Ink(
             decoration: BoxDecoration(
                 borderRadius: roundBorders! ? BorderRadius.circular(10) : BorderRadius.circular(0),
