@@ -1,11 +1,10 @@
 import 'package:croco/croco.dart';
+import 'package:croco/providers/firebase/auth..dart';
 import 'package:flutter/cupertino.dart';
 import '../buttons.dart';
 import 'package:flutter/material.dart';
 import '../../providers/forms_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
-import '../../firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 enum FormItemSize {small, medium, large, xlarge}
@@ -156,7 +155,7 @@ class _CrocoFormState extends State<CrocoForm> with WidgetsBindingObserver {
 }
 
 //NOT SUPPORTED
-class CrocoFormItem extends StatefulWidget {
+class CrocoFormItem extends ConsumerStatefulWidget {
   CrocoFormItem({
     Key? key,
     this.formItemSize = FormItemSize.medium,
@@ -169,7 +168,9 @@ class CrocoFormItem extends StatefulWidget {
     this.textSize = 14,
     this.roundBorders = true,
     this.responsiveness = Responsiveness.standart,
-    this.callback
+    this.callback,
+    this.validation,
+    this.callbackFocused,
     }) : 
     super(key: key);
 
@@ -184,16 +185,21 @@ class CrocoFormItem extends StatefulWidget {
     bool? roundBorders;
     Responsiveness? responsiveness;
     Function? callback;
+    Validation? validation;
+    Function? callbackFocused;
+
+    
 
   @override
-  State<CrocoFormItem> createState() => _CrocoFormItemState();
+  ConsumerState<CrocoFormItem> createState() => _CrocoFormItemState();
 }
 
-class _CrocoFormItemState extends State<CrocoFormItem> {
+class _CrocoFormItemState extends ConsumerState<CrocoFormItem> {
 
-  bool focused = false;
+  ValueNotifier<bool> focused = ValueNotifier<bool>(false);
   double? widthValue;
   ValueNotifier<String> formData = ValueNotifier("");
+  bool? onError = false;
 
   void getWidthValue(BuildContext context) {
     if(widthValue == null) {
@@ -209,6 +215,10 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
     formData.addListener(() {
       widget.callback!(formData.value);
     });
+
+    focused.addListener(() {
+      widget.callbackFocused!(focused.value);
+    });
   }
 
   @override
@@ -218,13 +228,21 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
     formData.dispose();
   }
 
+  int titleGetPosition(LogInFormState logInForm) {
+    if(widget.password != true && logInForm.arrangeFormTitle == 1) {
+      return 64;
+    } else if (widget.password == true && logInForm.arrangeFormTitle == 2) {
+      return 64;
+    } else {
+      return 40;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    //Here is the problem
-    
-
     getWidthValue(context);
+    var logInFormState = ref.watch(logInFormProvider);
     return Container(
       width: widget.responsiveness == Responsiveness.standart ? 
         MediaQuery.of(context).size.width > 1200 ? widget.formItemSize!.value * MediaQuery.of(context).size.width : widget.formItemSize!.value * 1200
@@ -246,6 +264,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
                   MediaQuery.of(context).size.width > 1200 ? widget.formItemSize!.value * MediaQuery.of(context).size.width 
                   : widget.formItemSize!.value * 1200 : widget.formItemSize!.value * widthValue!,
                 child: CrocoInputTextBase(
+                  validation: widget.validation,
                   roundBorders: widget.roundBorders,
                   password: widget.password,
                   color: widget.color!,
@@ -257,14 +276,14 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
                   }, 
                   callback: (val) => 
                     setState(() {
-                      focused = val;
+                      focused.value = val;
                     })
                   )
                 ),
               ]
             ),
             Positioned(
-              bottom: 40,
+              bottom: titleGetPosition(logInFormState).toDouble(),
               child: SelectableText(
                 widget.text!,
                 style: TextStyle(
@@ -294,7 +313,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
                 height:30,
                 decoration: BoxDecoration(
                   border: Border(
-                    right: BorderSide(color: focused ? widget.color! : CrocoTheme.of(context)!.themeDataExtra!.onSurface!)
+                    right: BorderSide(color: focused.value ? widget.color! : CrocoTheme.of(context)!.themeDataExtra!.onSurface!)
                   )
                 ),
                 child: widget.ornamentIcon
@@ -308,7 +327,7 @@ class _CrocoFormItemState extends State<CrocoFormItem> {
 }
 
 //NOT SUPPORTED
-class CrocoInputTextBase extends StatefulWidget {
+class CrocoInputTextBase extends ConsumerStatefulWidget {
   CrocoInputTextBase({
     Key? key,
     this.prefix = false,
@@ -316,7 +335,8 @@ class CrocoInputTextBase extends StatefulWidget {
     this.color,
     this.password,
     this.roundBorders = true,
-    this.callbackLogIn
+    this.callbackLogIn,
+    this.validation,
 
     }) : super(key: key);
 
@@ -325,19 +345,20 @@ class CrocoInputTextBase extends StatefulWidget {
     Color?  color;
     bool? password;
     bool? roundBorders;
-    Function ? callbackLogIn;
+    Function? callbackLogIn;
+    Validation? validation;
 
   @override
-  State<CrocoInputTextBase> createState() => _CrocoInputTextBaseState();
+  ConsumerState<CrocoInputTextBase> createState() => _CrocoInputTextBaseState();
 }
 
-class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
+class _CrocoInputTextBaseState extends ConsumerState<CrocoInputTextBase> {
 
   late FocusNode node;
-  bool focused = false;
+  ValueNotifier<bool> focused = ValueNotifier<bool>(false);
   late FocusAttachment nodeAttachment;
-
   TextEditingController controller = TextEditingController(text: "");
+  bool onError = false;
 
   @override
   void initState() {
@@ -345,16 +366,18 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
     node = FocusNode();
     node.addListener(handleFocusChange);
     nodeAttachment = node.attach(context);
+
+    focused.addListener(() {
+      widget.callback!(focused.value);
+    });
   }
 
   void handleFocusChange(){
     if(node.hasFocus != focused) {
       setState(() {
-        focused = node.hasFocus;
+        focused.value = node.hasFocus;
       });
-
-      widget.callback!(focused);
-
+      
     }
   }
 
@@ -368,8 +391,26 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
 
   @override
   Widget build(BuildContext context) {
+    var logInStateForm = ref.watch(logInFormProvider);
     return TextFormField(
+      validator: ((value) {
+      
+        //This is not the best option to manage front end verification.
+        if(widget.password != true && (logInStateForm.eCode == 'invalid-email' || logInStateForm.eCode == 'user-not-found')) {
+          ref.read(logInFormProvider.notifier).changeFocusStatus(
+          arrangeFormTitle: 1
+        );
+          return logInStateForm.firebaseAuthMessage;
+        } else if(widget.password == true && logInStateForm.eCode == 'wrong-password') {
+          ref.read(logInFormProvider.notifier).changeFocusStatus(
+          arrangeFormTitle: 2
+        );
+          return logInStateForm.firebaseAuthMessage;
+        } 
 
+        
+
+      }),
       controller: controller,
       obscureText: widget.password == true ? true : false,
       focusNode: node,
@@ -385,6 +426,21 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
       ),
         cursorColor: widget.color!,
         decoration: InputDecoration(
+          errorStyle: const TextStyle(
+            height: 0
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: Colors.red[700]!
+            )
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: Colors.red[700]!
+            )
+          ),
           hoverColor: widget.color!,
           isDense: true,
           contentPadding: widget.prefix! ? const EdgeInsets.only(top:10, bottom: 10, left:32) : const EdgeInsets.only(top:10, bottom: 10, left:10),
@@ -405,8 +461,8 @@ class _CrocoInputTextBaseState extends State<CrocoInputTextBase> {
   }
 }
 
-//ONLY SUPPORTED FOR MAINVIEW
-class LogInForm extends StatefulWidget with CrocoBase  {
+//ONLY SUPPORTED FOR LOGIN VIEW
+class LogInForm extends ConsumerStatefulWidget with CrocoBase  {
   LogInForm({
     Key? key,
     this.title = "Welcome Back",
@@ -424,10 +480,10 @@ class LogInForm extends StatefulWidget with CrocoBase  {
     
 
   @override
-  State<LogInForm> createState() => _LogInFormState();
+  ConsumerState<LogInForm> createState() => _LogInFormState();
 }
 
-class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMixin, CrocoBase {
+class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProviderStateMixin, CrocoBase {
 
   double height = 540;
   double width = 320;
@@ -435,21 +491,46 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
   Color? themeColorLight;
   Color? bordersColor;
 
-  Map<dynamic, dynamic> formData = {};
+  ValueNotifier<bool> usernameFocused = ValueNotifier<bool>(false);
+  ValueNotifier<bool> passwordFocused = ValueNotifier<bool>(false);
+
+
+  Map<dynamic, dynamic> formData = {'username': "", 'password': ""};
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    usernameFocused.addListener(() {
+      ref.read(logInFormProvider.notifier).changeFocusStatus(
+        usernameFocused: usernameFocused.value
+      );
+    });
+
+    passwordFocused.addListener(() {
+      ref.read(logInFormProvider.notifier).changeFocusStatus(
+        passwordFocused: passwordFocused.value
+      );
+    });
   }
 
-  void onSubmitCallback(Map<dynamic, dynamic> data) async {
+
+
+  void onSubmitCallback(Map<dynamic, dynamic>? data) async {
 
     late String username;
     late String password;
 
-    username = data['username'];
-    password = data['password'];
+    if(data!.entries.isEmpty) {
+      username = "";
+      password = "";
+    } else {
+      username = data['username'];
+      password = data['password'];
+    }
 
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -458,166 +539,212 @@ class _LogInFormState extends State<LogInForm> with SingleTickerProviderStateMix
       );
     } on FirebaseAuthException catch (e) {
       if(e.code == 'user-not-found') {
-        print("N user found for that email");
+        ref.read(logInFormProvider.notifier).changeFocusStatus(
+          firebaseAuthMessage: "No user found for that email",
+          eCode: e.code,
+          usernameOnError: true,
+          usernameFocused: true
+        );    
       } else if(e.code == "wrong-password") {
-        print("Wrong password provider for that user");
+        ref.read(logInFormProvider.notifier).changeFocusStatus(
+          firebaseAuthMessage: "Wrong password for that user",
+          eCode: e.code,
+          passwordOnError: true,
+          passwordFocused: true
+        );
+      } else if(e.code == "invalid-email") {
+        ref.read(logInFormProvider.notifier).changeFocusStatus(
+          firebaseAuthMessage: "The email address is badly formatted",
+          eCode: e.code,
+          usernameOnError: true,
+          usernameFocused: true
+        );     
       } else {
-        print(e);
+        print("${e.code} $e");
+        ref.read(logInFormProvider.notifier).changeFocusStatus(
+          firebaseAuthMessage: "$e.code"
+        );
       }
+    } finally {
+      Future.delayed(Duration.zero, (){
+        formKey.currentState!.validate();
+      });
+        
     }
+
+
 
   }
 
   @override
   Widget build(BuildContext context) {
-    print(formData);
+    var logInFormState = ref.watch(logInFormProvider);
+    var user = ref.read(userAuth);
     return Container(
       padding: EdgeInsets.only(top: 50),
       height: height,
       width: width,
       alignment: Alignment.center,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            margin: widget.centerHeaderText == false ? EdgeInsets.only(left: 10) : EdgeInsets.only(right: 20),
-            alignment: widget.centerHeaderText == false ? Alignment.topLeft : Alignment.center,
-            child: SelectableText(
-              style: TextStyle(
-                color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-              "Welcome Back"
-            )
-          ),
-          Container(
-            margin: widget.centerHeaderText == false ? EdgeInsets.only(left: 12, top: 10) : EdgeInsets.only(top: 10, right: 11),
-            alignment: widget.centerHeaderText == false ? Alignment.topLeft : Alignment.center,
-            child: SelectableText(
-              "Welcome back! Please enter your credentials.",
-              style: TextStyle(
-                color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
-              )
-            )
-          ),
-          Container(
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(top: 24, left: 12, right: 26),
-            child: CrocoFormItem(
-              color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
-              responsiveness: Responsiveness.standart,
-              textSize: 12,
-              text : "Username",
-              roundBorders: widget.roundBorders,
-              callback: (val) {
-                setState(() {
-                  formData['username'] = val;
-                });
-              } 
-                
-            )
-          ),
-          Container(
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(top: 20, left: 12, right: 26),
-            child: CrocoFormItem(
-              color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
-              responsiveness: Responsiveness.standart,
-              textSize: 12,
-              password: true,
-              text : "Password",
-              roundBorders: widget.roundBorders,
-              callback: (val) =>
-              setState(() {
-                formData['password'] = val;
-              }) 
-            )
-          ),
-          AnimatedContainer(
-            duration: Duration(milliseconds: 2000),
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(top: 20, left: 12),
-            child: InkWell(
-              hoverColor: Colors.transparent,
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
-              onTap: (() {}),
-              onHover: (event) {
-                setState(() {
-                  event == true ? focused = true : focused = false;
-                });
-              },
-              child: AnimatedDefaultTextStyle(
-                curve: Curves.ease,
-                duration: Duration(milliseconds: 500),
+      child: Form(
+        key: formKey,
+        onChanged: (() {
+        }),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: widget.centerHeaderText == false ? EdgeInsets.only(left: 10) : EdgeInsets.only(right: 20),
+              alignment: widget.centerHeaderText == false ? Alignment.topLeft : Alignment.center,
+              child: SelectableText(
                 style: TextStyle(
-                    fontWeight: focused ? FontWeight.bold : FontWeight.normal,
-                    color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
-                    fontSize: 12
-                  ),
-                child: Text(
-                  "Forgot Password",
+                  color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                 ),
+                "Welcome Back"
+              )
+            ),
+            Container(
+              margin: widget.centerHeaderText == false ? EdgeInsets.only(left: 12, top: 10) : EdgeInsets.only(top: 10, right: 11),
+              alignment: widget.centerHeaderText == false ? Alignment.topLeft : Alignment.center,
+              child: SelectableText(
+                "Welcome back! Please enter your credentials.",
+                style: TextStyle(
+                  color: CrocoTheme.of(context)!.themeDataExtra!.textColor,
+                )
+              )
+            ),
+            Container(
+              alignment: Alignment.topLeft,
+              margin: EdgeInsets.only(top: 24, left: 12, right: 26),
+              child: CrocoFormItem(
+                validation: Validation.isEmpty,
+                color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
+                responsiveness: Responsiveness.standart,
+                textSize: 12,
+                text : "Username",
+                roundBorders: widget.roundBorders,
+                callback: (val) {
+                  setState(() {
+                    formData['username'] = val;
+                  });
+                },
+                callbackFocused: (val) {
+                  setState(() {
+                    usernameFocused.value = val;
+                  });
+                } 
+                  
+              )
+            ),
+            Container(
+              alignment: Alignment.topLeft,
+              margin: EdgeInsets.only(top: 20, left: 12, right: 26),
+              child: CrocoFormItem(
+                validation: Validation.isEmpty,
+                color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
+                responsiveness: Responsiveness.standart,
+                textSize: 12,
+                password: true,
+                text : "Password",
+                roundBorders: widget.roundBorders,
+                callback: (val) =>
+                setState(() {
+                  formData['password'] = val;
+                }) ,
+                callbackFocused: (val) {
+                  setState(() {
+                    passwordFocused.value = val;
+                  });
+                },
+              )
+            ),
+            AnimatedContainer(
+              duration: Duration(milliseconds: 2000),
+              alignment: Alignment.topLeft,
+              margin: EdgeInsets.only(top: 20, left: 12),
+              child: InkWell(
+                hoverColor: Colors.transparent,
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+                onTap: (() {}),
+                onHover: (event) {
+                  setState(() {
+                    event == true ? focused = true : focused = false;
+                  });
+                },
+                child: AnimatedDefaultTextStyle(
+                  curve: Curves.ease,
+                  duration: Duration(milliseconds: 500),
+                  style: TextStyle(
+                      fontWeight: focused ? FontWeight.bold : FontWeight.normal,
+                      color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
+                      fontSize: 12
+                    ),
+                  child: Text(
+                    "Forgot Password",
+                  ),
+                )
+              )
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 12, right: 28, top: 20),
+              alignment: Alignment.topLeft,
+              child: SimpleButton(
+                parentKey: formKey,
+                backgroundColor: widget.themeColor ?? Theme.of(context).colorScheme.primary,
+                splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
+                roundBorders: widget.roundBorders,
+                callback: () {
+                   onSubmitCallback(formData);
+                },
+              )
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 12, right: 28, top: 20),
+              alignment: Alignment.topLeft,
+              child: SimpleButtonWithIcon(
+                splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
+                roundBorders: widget.roundBorders,
+              )
+            ),
+            Container(
+              alignment: Alignment.topLeft,
+              margin: EdgeInsets.only(right: 15),
+              child: Stack(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 18),
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Don't have an account?"
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 2),
+                          child: InkWell(
+                            overlayColor: MaterialStateProperty.all(Colors.transparent),
+                            onTap:(() {
+                              
+                            }),
+                            child: Text(
+                              "Sign up",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
+                              )
+                            )
+                          ),
+                        )
+                      ],
+                    )
+                  )
+                ],
               )
             )
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 12, right: 28, top: 20),
-            alignment: Alignment.topLeft,
-            child: SimpleButton(
-              backgroundColor: widget.themeColor ?? Theme.of(context).colorScheme.primary,
-              splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
-              roundBorders: widget.roundBorders,
-              callback: () {
-                 onSubmitCallback(formData);
-              },
-            )
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 12, right: 28, top: 20),
-            alignment: Alignment.topLeft,
-            child: SimpleButtonWithIcon(
-              splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
-              roundBorders: widget.roundBorders,
-            )
-          ),
-          Container(
-            alignment: Alignment.topLeft,
-            margin: EdgeInsets.only(right: 15),
-            child: Stack(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: 18),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an account?"
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 2),
-                        child: InkWell(
-                          overlayColor: MaterialStateProperty.all(Colors.transparent),
-                          onTap:(() {
-                            
-                          }),
-                          child: Text(
-                            "Sign up",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: widget.themeColor ?? Theme.of(context).colorScheme.primary,
-                            )
-                          )
-                        ),
-                      )
-                    ],
-                  )
-                )
-              ],
-            )
-          )
-        ],
+          ],
+        ),
       )
     );
   }

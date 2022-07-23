@@ -172,5 +172,76 @@ final dataPickerProvider = StateNotifierProvider<DataPickerNotifier, List<DataPi
 });
 
 
+class LogInFormState {
 
+  LogInFormState({
+    required this.usernameFocused,
+    required this.passwordFocused,
+    required this.usernameOnError,
+    required this.passwordOnError,
+    this.firebaseAuthMessage,
+    this.eCode,
+    this.arrangeFormTitle,
+    //arrangeFormTitle. 0 = false, 1 = true username, 2 = true password
+  });
 
+  final bool usernameFocused;
+  final bool passwordFocused;
+  final bool usernameOnError;
+  final bool passwordOnError;
+  final String? firebaseAuthMessage;
+  final String? eCode;
+  final int? arrangeFormTitle;
+
+  LogInFormState copyWith({bool? usernameFocused, bool? passwordFocused, bool? usernameOnError, bool? passwordOnError, 
+    String? firebaseAuthMessage, String? eCode, int? arrangeFormTitle}) {
+
+    return LogInFormState(
+      usernameFocused: usernameFocused ?? this.usernameFocused,
+      passwordFocused: passwordFocused ?? this.passwordFocused,
+      usernameOnError: usernameOnError ?? this.usernameOnError,
+      passwordOnError: passwordOnError ?? this.passwordOnError,
+      firebaseAuthMessage: firebaseAuthMessage ?? this.firebaseAuthMessage,
+      eCode: eCode ?? this.eCode,
+      arrangeFormTitle: arrangeFormTitle ?? this.arrangeFormTitle
+    );
+  }
+
+  @override
+  String toString() {
+    
+    return """{usernameFocused: $usernameFocused\n passwordFocused: $passwordFocused\n usernameOnError: $usernameOnError
+ passwordOnError: $passwordOnError\n firebaseAuthMessage: $firebaseAuthMessage\n eCode: $eCode\n $arrangeFormTitle}""";
+  }
+}
+
+class LogInFormNotifier extends StateNotifier<LogInFormState> {
+
+  LogInFormNotifier() : super(LogInFormState(usernameFocused: false, passwordFocused: false, usernameOnError: false, passwordOnError: false));
+
+  void changeFocusStatus({bool? usernameFocused, bool? passwordFocused, bool? usernameOnError, bool? passwordOnError, 
+    String? firebaseAuthMessage, String? eCode, int? arrangeFormTitle}) {
+
+    state = state.copyWith(
+      usernameFocused: usernameFocused,
+      passwordFocused: passwordFocused,
+      usernameOnError: usernameOnError,
+      passwordOnError: passwordOnError,
+      firebaseAuthMessage: firebaseAuthMessage,
+      eCode: eCode,
+      arrangeFormTitle: arrangeFormTitle
+    );
+  }
+}
+
+final logInFormProvider = StateNotifierProvider<LogInFormNotifier, LogInFormState>(((ref) {
+  return LogInFormNotifier();
+}));
+
+final futureFormState = FutureProvider(
+  (ref) => ref.read(logInFormProvider)
+);
+
+final usernameProvider = Provider<String>(((ref) => ""));
+
+final passwordProvider = Provider<String>(((ref) => ""));

@@ -17,11 +17,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return CrocoApp(
-      crocoTheme: CrocoThemes.zenForest,
+      crocoTheme: CrocoThemes.deepSea,
       home: Scaffold(
         body: LogInView(
           logInForm: LogInForm(),
-        ),
+        )
       )
     );
   }
