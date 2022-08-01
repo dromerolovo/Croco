@@ -1,3 +1,4 @@
+import 'package:croco/providers/firebase/auth..dart';
 import 'package:croco/providers/forms_state.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -13,7 +14,8 @@ class SimpleButton extends ConsumerWidget {
     this.fontColor = Colors.white,
     this.splashColor = const Color(0xFFC5E1A5),
     this.callback,
-    this.parentKey
+    this.parentKey,
+    this.objectIdentifier
     }) : super(key: key);
 
     Color? backgroundColor;
@@ -22,6 +24,7 @@ class SimpleButton extends ConsumerWidget {
     Color? splashColor;
     Function? callback;
     GlobalKey<FormState>? parentKey;
+    String? objectIdentifier;
 
 
   @override
@@ -35,10 +38,6 @@ class SimpleButton extends ConsumerWidget {
           splashColor: splashColor,
           onTap: (() {
             callback!();
-            // Future.delayed(Duration(milliseconds: 400), (){
-              
-            //   parentKey!.currentState!.validate(); 
-            // });
 
             Future.delayed(Duration(milliseconds: 3000), (){
               parentKey!.currentState!.reset();
@@ -199,12 +198,14 @@ class _SquaredButtonState extends ConsumerState<SquaredButton> {
 
             if(widget.parentGlobalKey != null && widget.index == null) {
               ref.read(formStatePodProvider.notifier).focusedForm(widget.parentGlobalKey, true);
-              Future.delayed(const Duration(milliseconds: 1300 ), (() =>  ref.read(formStatePodProvider.notifier).focusedForm(widget.parentGlobalKey, false)));
+              Future.delayed(const Duration(milliseconds: 1300), (() =>  ref.read(formStatePodProvider.notifier).focusedForm(widget.parentGlobalKey, false)));
               Future.delayed(Duration(microseconds: 15), () {
               if(widget.parentGlobalKey!.currentState!.validate()) {
                 
-                widget.parentGlobalKey!.currentState!.save();
                 
+                ref.read(formStatePodProvider.notifier).changeDataIsSaved(widget.parentGlobalKey, true);
+                widget.parentGlobalKey!.currentState!.save();
+
 
               }
             });
@@ -219,9 +220,12 @@ class _SquaredButtonState extends ConsumerState<SquaredButton> {
 
                     if(verificationList.firstWhere((element) => element == false, orElse: () => true)) {
 
+                      ref.read(formStatePodProvider.notifier).changeDataIsSavedCollection(widget.index, true);
                       formKey.currentState!.save();
                       ref.read(formStatePodProvider.notifier).focusedForm(formKey, false);
                     }
+
+
                     
                   }
                 }

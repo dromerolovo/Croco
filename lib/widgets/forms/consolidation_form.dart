@@ -1,4 +1,5 @@
 import 'package:croco/croco.dart';
+import 'package:croco/providers/data_state.dart';
 import 'package:croco/providers/forms_state.dart';
 import 'package:croco/widgets/buttons.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +12,13 @@ class ConsolidationForm extends ConsumerStatefulWidget {
   const ConsolidationForm({
     Key? key,
     this.index,
-    this.objectIdentifier
+    required this.objectIdentifier,
+    required this.numberOfForms
     }) : super(key: key);
 
     final int? index;
-    final String? objectIdentifier;
+    final String objectIdentifier;
+    final int numberOfForms;
 
 
   @override
@@ -28,15 +31,25 @@ class _ConsolidationFormState extends ConsumerState<ConsolidationForm> {
   int count = 0;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    ref.read(objectIdentifiersProvider)[widget.index.toString()] = widget.objectIdentifier;
+    ref.read(numberOfFormsProvider)[widget.index!] = widget.numberOfForms;
+    ref.read(verificationCountProvider)[widget.index!] = 0;
+  }
+
+  @override
   Widget build(BuildContext context) {
     count++;
     var formsList = ref.watch(formStatePodFiltered(widget.index)).where((element) => element.formValidation == FormValidation.group);
 
-    if(count == 2) {
+    if(count >= 1) {
       for(var form in formsList) {
         listOfKeys.add(form.globalKey!);
       }
     }
+    
     return Container(
       margin: const EdgeInsets.only(left: 20),
       alignment: Alignment.centerLeft,
