@@ -19,8 +19,11 @@ class MyApp extends StatelessWidget {
     return CrocoApp(
       crocoTheme: CrocoThemes.deepSea,
       home: Scaffold(
-        body: LogInView(
-          logInForm: LogInForm(),
+        body:LogInView(
+          widgetToRouting: MyHomePage(),
+          logInForm: LogInForm(
+            widgetToRouting: MyHomePage(),
+          ),
         )
       )
     );
@@ -63,6 +66,7 @@ class MyHomePage extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                   ),
                   child: CrocoFormDense(
+                    objectIdentifier: "client",
                     formValidation: FormValidation.group,
                     index: 1,
                     name: "Client Info",
@@ -122,7 +126,9 @@ class MyHomePage extends StatelessWidget {
                 childOn: Container(
                   alignment: Alignment.centerLeft,
                   color: Theme.of(context).colorScheme.surface,
-                  child: ConsolidationForm(
+                  child: const ConsolidationForm(
+                    numberOfForms: 2,
+                    objectIdentifier: "clientData",
                     index: 1,
                   )
                 ),
@@ -140,6 +146,7 @@ class MyHomePage extends StatelessWidget {
                   child: CrocoFormDense(
                     index:1,
                     name: "Address Manager",
+                    objectIdentifier: "clientAddress",
                     formValidation: FormValidation.group,
                     children: [
                       CrocoFormItemDense(

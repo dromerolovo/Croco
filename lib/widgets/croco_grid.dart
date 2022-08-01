@@ -153,7 +153,9 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
           top: positionedTop,
           left: positionedLeft,
           child: Container(
-            color: tile.backgroundColor ?? Theme.of(context).colorScheme.surface,
+            decoration: BoxDecoration(
+              color: tile.backgroundColor ?? Theme.of(context).colorScheme.surface,
+            ),
             alignment: Alignment.center,
             width: tileWidth,
             height: tileHeight >= 322.7998 ? tileHeight : tileHeight + (35.866 - tileHeight / 9 ),

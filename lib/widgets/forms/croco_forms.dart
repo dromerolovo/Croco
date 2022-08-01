@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:croco/croco.dart';
+import 'package:croco/providers/data_state.dart';
 import 'package:croco/providers/firebase/auth..dart';
 import 'package:flutter/cupertino.dart';
 import '../buttons.dart';
@@ -469,7 +471,8 @@ class LogInForm extends ConsumerStatefulWidget with CrocoBase  {
     this.description = "Welcome back! Please enter your credentials",
     this.themeColor,
     this.roundBorders = true,
-    this.centerHeaderText = false
+    this.centerHeaderText = false,
+    this.widgetToRouting
     }) : super(key: key);
 
     String? title;
@@ -477,6 +480,7 @@ class LogInForm extends ConsumerStatefulWidget with CrocoBase  {
     Color? themeColor;
     bool? roundBorders;
     bool? centerHeaderText;
+    Widget? widgetToRouting;
     
 
   @override
@@ -495,7 +499,7 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
   ValueNotifier<bool> passwordFocused = ValueNotifier<bool>(false);
 
 
-  Map<dynamic, dynamic> formData = {'username': "", 'password': ""};
+  Map<String, String> formData = {'username': "", 'password': ""};
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 
@@ -519,7 +523,7 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
 
 
 
-  void onSubmitCallback(Map<dynamic, dynamic>? data) async {
+  Future<bool?> onSubmitCallback(Map<String, String>? data, BuildContext context) async {
 
     late String username;
     late String password;
@@ -528,14 +532,19 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
       username = "";
       password = "";
     } else {
-      username = data['username'];
-      password = data['password'];
+      username = data['username']!;
+      password = data['password']!;
     }
 
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: username, 
         password: password
+      ).then((value) => 
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => widget.widgetToRouting!)
+        )
       );
     } on FirebaseAuthException catch (e) {
       if(e.code == 'user-not-found') {
@@ -543,8 +552,9 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
           firebaseAuthMessage: "No user found for that email",
           eCode: e.code,
           usernameOnError: true,
-          usernameFocused: true
-        );    
+          usernameFocused: true,
+
+        );
       } else if(e.code == "wrong-password") {
         ref.read(logInFormProvider.notifier).changeFocusStatus(
           firebaseAuthMessage: "Wrong password for that user",
@@ -558,7 +568,7 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
           eCode: e.code,
           usernameOnError: true,
           usernameFocused: true
-        );     
+        );  
       } else {
         print("${e.code} $e");
         ref.read(logInFormProvider.notifier).changeFocusStatus(
@@ -571,9 +581,6 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
       });
         
     }
-
-
-
   }
 
   @override
@@ -694,8 +701,8 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
                 backgroundColor: widget.themeColor ?? Theme.of(context).colorScheme.primary,
                 splashColor: CrocoBase.lightenColorForHighlight(widget.themeColor ?? Theme.of(context).colorScheme.primary, 0.3),
                 roundBorders: widget.roundBorders,
-                callback: () {
-                   onSubmitCallback(formData);
+                callback: () async {
+                    onSubmitCallback(formData,context);
                 },
               )
             ),
@@ -860,23 +867,28 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
 
   @override
   Widget build(BuildContext context) {
-    var focusedPod = ref.watch(formStatePodProvider).firstWhere(((element) => element.globalKey == widget.globalKey), orElse: () => FormStatePod()).focused;
+
+    var formPod = ref.watch(formStatePodProvider).firstWhere(((element) => element.globalKey == widget.globalKey), orElse: () => FormStatePod());
+    var focusedPod = formPod.focused;
     return Container(
       padding: const EdgeInsets.all(20),
       alignment: Alignment.topCenter,
       child: TextFormField(
-        //TODO -> onSave: 
         onSaved: ((newValue) {
           widget.callback!(newValue);
           controller.text = "";
         }),
         controller: controller,
         key: globalKey,
-        // readOnly: widget.datePicker == true ? true : false,
         validator: ((value) {
           if (focusedPod!) {
             if(widget.validation != null) {
-              return widget.validation!.validation(value);
+              if(widget.validation!.validation(value) == null) {
+                
+              } else {
+                return widget.validation!.validation(value);
+              }
+              
             } else {return null;}       
           }
         }),
@@ -903,7 +915,7 @@ class _CrocoFormItemDenseState extends ConsumerState<CrocoFormItemDense> {
               color: widget.colorTheme ?? Theme.of(context).colorScheme.primary
             )
           ),
-          errorBorder: focusedPod ? UnderlineInputBorder(
+          errorBorder: focusedPod ? const UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.red)
           ) : UnderlineInputBorder(
             borderSide: BorderSide(color:Colors.grey[700]!)
@@ -975,7 +987,9 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
   List<Widget> processedList = [];
   final formKey = GlobalKey<FormState>();
   bool? focused = false;
-  Map<dynamic, dynamic> data = {};
+
+  ValueNotifier<Map<String, String>> dataNotifier = ValueNotifier<Map<String, String>>({});
+  int countForm = 0;
 
   void preProcessor(List<CrocoFormItemDense>? children, Widget? button ) {
 
@@ -987,8 +1001,18 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
 
       crocoFormItem.globalKey = formKey;
       crocoFormItem.callback = 
-      (val) => (data[crocoFormItem.name] = val);
-      
+      // (val) => (dataNotifier.value[crocoFormItem.name] = val);
+
+      (val) {
+
+        var newMap = <String, String>{};
+
+        newMap.addAll(dataNotifier.value);
+
+        newMap.addAll(<String, String>{crocoFormItem.name! : val});
+
+        dataNotifier.value = newMap;
+      };
 
       if(crocoFormItem.halfSize == true) {
         if(count < children.length - 1) {
@@ -1047,7 +1071,6 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
           transform: count == 0 ? Matrix4.translationValues(0, -20, 0) : Matrix4.translationValues(0, -20 + (-40 * evenCount), 0),
           child: SquaredButton(
             parentGlobalKey: formKey,
-            // index: widget.index
           ),
         )
       );
@@ -1056,8 +1079,64 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
 
   @override
   void initState() {
+
+    var db = FirebaseFirestore.instance;
     // TODO: implement initState
     super.initState();
+    dataNotifier.addListener((() {
+
+      var childrenCount = widget.children!.length;
+      countForm++;
+
+      if(countForm == childrenCount) { 
+        
+        if(widget.index != null) {
+          
+          var numberOfForms = ref.read(numberOfFormsProvider)[widget.index]!;
+
+          var verificationCount = ref.read(verificationCountProvider)[widget.index!];
+
+          ref.read(dataMap).addAll(dataNotifier.value);
+
+          if(ref.read(verificationCountProvider)[widget.index!] == ref.read(numberOfFormsProvider)[widget.index]! - 1 ) {
+
+            var data = ref.read(dataMap);
+            var objectIdentifier = ref.read(objectIdentifiersProvider)[widget.index.toString()];
+            db
+              .collection(objectIdentifier!)
+              .doc()
+              .set(data)
+              .onError((error, stackTrace) => print("Error writing document: $error"));
+
+
+            ref.read(verificationCountProvider)[widget.index!] = -1;
+          }
+
+          ref.read(verificationCountProvider)[widget.index!] = ref.read(verificationCountProvider)[widget.index!]! + 1;
+
+
+        }
+        
+        //This needs to be checked
+        if(widget.index == null) {
+
+          var data = dataNotifier.value;
+          var objectIdentifier = widget.objectIdentifier!;
+          db
+              .collection(objectIdentifier)
+              .doc()
+              .set(data)
+              .onError((error, stackTrace) => print("Error writing document: $error"));
+        }
+
+        countForm = 0;
+
+        
+      };
+    }));
+
+    
+
     preProcessor(widget.children, widget.button);
     Future.delayed(Duration.zero, (){
       ref.read(formStatePodProvider.notifier).addFormStatePod(FormStatePod(
@@ -1069,7 +1148,6 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
         formValidation: widget.formValidation
       ));
     });
-
   }
  
   @override
