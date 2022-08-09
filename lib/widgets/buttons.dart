@@ -201,8 +201,9 @@ class _SquaredButtonState extends ConsumerState<SquaredButton> {
               Future.delayed(const Duration(milliseconds: 1300), (() =>  ref.read(formStatePodProvider.notifier).focusedForm(widget.parentGlobalKey, false)));
               Future.delayed(Duration(microseconds: 15), () {
               if(widget.parentGlobalKey!.currentState!.validate()) {
-                
-                
+
+                ref.read(formStatePodProvider.notifier).focusedForm(widget.parentGlobalKey, false);
+
                 ref.read(formStatePodProvider.notifier).changeDataIsSaved(widget.parentGlobalKey, true);
                 widget.parentGlobalKey!.currentState!.save();
 

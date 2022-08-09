@@ -1,10 +1,13 @@
 import 'dart:html';
 import 'package:croco/croco.dart';
+import 'package:croco/providers/firebase/firebase_data.dart';
+import 'package:croco/providers/firebase/utils.dart';
 import 'package:flutter/material.dart';
 import '../croco_base.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-class MainView extends StatefulWidget {
+class MainView extends ConsumerStatefulWidget {
   MainView({
     Key? key,
     Widget? this.logo,
@@ -23,10 +26,10 @@ class MainView extends StatefulWidget {
     Color? colorIcon;
 
   @override
-  State<MainView> createState() => _MainViewState();
+  ConsumerState<MainView> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView> with CrocoBase, SingleTickerProviderStateMixin {
+class _MainViewState extends ConsumerState<MainView> with CrocoBase, SingleTickerProviderStateMixin {
 
 
   bool? breakPointActivation = false;
@@ -87,7 +90,7 @@ class _MainViewState extends State<MainView> with CrocoBase, SingleTickerProvide
                           }),
                           child: Icon(
                             Icons.menu,
-                            color: widget.colorIcon ?? Colors.grey[700],
+                            color: widget.colorIcon ?? CrocoTheme.of(context)!.themeDataExtra!.onSurface,
                             size: 30
                           ),
                         )

@@ -6,6 +6,7 @@ import '../../themes/themes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../../firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
 
 void initializeCrocoApp(Widget widget) async {
@@ -25,6 +26,15 @@ void initializeCrocoApp(Widget widget) async {
   });
 
   runApp(widget);
+}
+
+class AppModule extends Module {
+
+  @override
+  List<Bind> get binds => [];
+
+  @override
+  List<ModularRoute> get routes => [];
 }
 
 class CrocoApp extends StatelessWidget {

@@ -11,13 +11,11 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  
-
   @override
   Widget build(BuildContext context) {
 
     return CrocoApp(
-      crocoTheme: CrocoThemes.deepSea,
+      crocoTheme: CrocoThemes.vaporwave,
       home: Scaffold(
         body:LogInView(
           widgetToRouting: MyHomePage(),
@@ -178,6 +176,17 @@ class MyHomePage extends StatelessWidget {
           )
         )
       )
+    );
+  }
+}
+
+class DataTableTest extends StatelessWidget {
+  const DataTableTest({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: CrocoDataTable.fromFirestore(objectIdentifier: "clientData")
     );
   }
 }
