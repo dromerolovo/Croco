@@ -48,6 +48,32 @@ class ThemeDataExtra {
 
 //Croco Main
 
+ThemeData vaporwave = ThemeData(
+  primaryColor: HSLColor.fromAHSL(1, 340, 0.71, 0.44).toColor(),
+  fontFamily: "Segoe UI",
+  colorScheme: ColorScheme.fromSeed(
+    primary: HSLColor.fromAHSL(1, 340, 0.71, 0.44).toColor(),
+    onPrimary: Colors.white,
+    seedColor: HSLColor.fromAHSL(1, 340, 0.86, 0.50).toColor(),
+    brightness: Brightness.dark,
+    secondary: Colors.white,
+    background: HSLColor.fromAHSL(1, 281, 0.42, 0.32).toColor(),
+    surface: HSLColor.fromAHSL(1, 275, 0.53, 0.26).toColor(),
+    surfaceVariant: HSLColor.fromAHSL(1, 281, 0.37, 0.35).toColor(),
+  )
+);
+
+ThemeDataExtra vaporwaveExtra = ThemeDataExtra(
+  onHoverOnSurfaceVariant: CrocoBase.lightenColorForHighlight(HSLColor.fromAHSL(1, 281, 0.37, 0.35).toColor(), 0.05),
+  textColor: Colors.white,
+  smallTextColor: Colors.white,
+  onSurfaceVariant: Colors.white,
+  onSurface: Colors.white,
+  formBorderColor: Colors.white,
+  logInImage: 'log_in_view_vaporwave.png'
+
+);
+
 ThemeData zenForest = ThemeData(
   primaryColor: Colors.lightGreen,
   fontFamily: "Segoe UI",
@@ -102,7 +128,7 @@ ThemeDataExtra deepSeaExtra = ThemeDataExtra(
 
 
 
-enum CrocoThemes { zenForest, deepSea }
+enum CrocoThemes { zenForest, deepSea, vaporwave }
 
 
 extension CrocoThemesValue on CrocoThemes {
@@ -111,6 +137,7 @@ extension CrocoThemesValue on CrocoThemes {
     switch(this) {
       case CrocoThemes.zenForest: return zenForest;
       case CrocoThemes.deepSea: return deepSea;
+      case CrocoThemes.vaporwave: return vaporwave;
     }
   }
 
@@ -118,6 +145,7 @@ extension CrocoThemesValue on CrocoThemes {
     switch(this) {
       case CrocoThemes.zenForest: return zenForestExtra;
       case CrocoThemes.deepSea: return deepSeaExtra;
+      case CrocoThemes.vaporwave: return vaporwaveExtra;
     }
   }
 }

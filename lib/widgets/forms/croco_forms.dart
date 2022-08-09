@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:croco/croco.dart';
 import 'package:croco/providers/data_state.dart';
 import 'package:croco/providers/firebase/auth..dart';
+import 'package:croco/providers/firebase/utils.dart';
 import 'package:flutter/cupertino.dart';
 import '../buttons.dart';
 import 'package:flutter/material.dart';
@@ -1102,13 +1103,48 @@ class _CrocoFormDenseState extends ConsumerState<CrocoFormDense> {
 
             var data = ref.read(dataMap);
             var objectIdentifier = ref.read(objectIdentifiersProvider)[widget.index.toString()];
+
             db
               .collection(objectIdentifier!)
               .doc()
               .set(data)
               .onError((error, stackTrace) => print("Error writing document: $error"));
 
+            var referenceCounter;
 
+            var counterData = db.collection("counter").doc("${objectIdentifier}Counter").get().then((value) {
+
+              if(value.data() != null) {
+
+              var referenceVerification = value.data()!["${objectIdentifier}Counter"];
+              var mapToFireBase = <String,dynamic>{};
+              mapToFireBase["${objectIdentifier}Counter"] = referenceVerification + 1;
+              db
+                .collection("counter")
+                .doc("${objectIdentifier}Counter")
+                .set(mapToFireBase)
+                .onError((error, stackTrace) => print("Error while setting the document"));
+                
+              if(referenceVerification != null) {
+                
+              }
+
+            } else {
+
+              print("Hey");
+              referenceCounter = 0;
+              var mapToFirebase = <String, dynamic>{};
+              mapToFirebase["${objectIdentifier}Counter"] = referenceCounter;
+
+              db
+                .collection("counter")
+                .doc("${objectIdentifier}Counter")
+                .set(mapToFirebase)
+                .onError((error, stackTrace) => print("Error creating doc"));
+            }
+
+            });
+               
             ref.read(verificationCountProvider)[widget.index!] = -1;
           }
 

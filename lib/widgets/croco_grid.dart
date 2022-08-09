@@ -4,20 +4,42 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../themes/themes.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+enum HeaderSize {alwaysSmall, twoSizes, flexible}
+
+extension HeaderSizeGetter on HeaderSize {
+
+  double getHeaderSize(double tileHeight) {
+
+    switch(this) {
+      case HeaderSize.alwaysSmall:
+        return 35.866;
+      case HeaderSize.twoSizes:
+        if(tileHeight > 322.79999) {
+          return 54.355;
+        } else {
+          return 35.866;
+        }
+      case HeaderSize.flexible:
+        return tileHeight / 9;
+      
+    }
+  }
+}
+
 class Panel extends StatelessWidget {
    Panel({
     Key? key,
-    int? this.xStartPoint = 2,
-    int? this.yStartPoint = 2,
-    int? this.xAxisSquares = 2,
-    int? this.yAxisSquares = 2,
-    Color? this.backgroundColor,
-    bool? this.header,
-    Icon? this.icon,
-    Color? this.iconColor,
-    String? this.headerText = "Header Title",
-    String? this.extraHeaderInfo = "",
-    Widget? this.childOn
+    this.xStartPoint = 2,
+    this.yStartPoint = 2,
+    this.xAxisSquares = 2,
+    this.yAxisSquares = 2,
+    this.backgroundColor,
+    this.header,
+    this.icon,
+    this.iconColor,
+    this.headerText = "Header Title",
+    this.extraHeaderInfo = "",
+    this.childOn
     }) : 
     super(key: key);
 
@@ -43,12 +65,13 @@ class Panel extends StatelessWidget {
 class CrocoGrid extends ConsumerStatefulWidget {
   CrocoGrid({
     Key? key,
-    int? this.xAxisGridSquares = 8,
-    int? this.yAxisGridSquares = 4,
-    double? this.externalPadding = 20,
-    double? this.paddingInBetween = 10,
-    List<Panel>? this.panelsList,
-    Color? this.backgroundParentColor,
+    this.xAxisGridSquares = 8,
+    this.yAxisGridSquares = 4,
+    this.externalPadding = 20,
+    this.paddingInBetween = 10,
+    this.panelsList,
+    this.backgroundParentColor,
+    this.headerSize = HeaderSize.twoSizes,
 
 
     }) : super(key: key);
@@ -59,6 +82,7 @@ class CrocoGrid extends ConsumerStatefulWidget {
     double? paddingInBetween;
     List<Panel>? panelsList;
     Color? backgroundParentColor;
+    HeaderSize? headerSize;
 
 
   @override
@@ -148,6 +172,7 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
 
       var calculation = tileHeight / 9;
 
+
       positionedList.add(
         Positioned(
           top: positionedTop,
@@ -158,12 +183,14 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
             ),
             alignment: Alignment.center,
             width: tileWidth,
-            height: tileHeight >= 322.7998 ? tileHeight : tileHeight + (35.866 - tileHeight / 9 ),
+            height: tileHeight,
+            // height: tileHeight >= 322.7998 ? tileHeight : tileHeight + (35.866 - tileHeight / 9 ),
             child: tile.header == true ? Column(    
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  height: tileHeight < 322.7998 ? 35.866 : tileHeight / 9,
+                  // height: tileHeight < 322.7998 ? 35.866 : tileHeight / 9,
+                  height: widget.headerSize!.getHeaderSize(tileHeight),
                   width: tileWidth,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -206,7 +233,8 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
                   color: widget.backgroundParentColor ?? Theme.of(context).colorScheme.background
                 ),
                 Container(
-                  height: tileHeight - (tileHeight < 322.7998 ? 35.866 : tileHeight / 9) - 6.7,
+                  // height: tileHeight - (tileHeight < 322.7998 ? 35.866 : tileHeight / 9) - 6.7,
+                  height: tileHeight - widget.headerSize!.getHeaderSize(tileHeight) - 10 / 1.5,
                   child: tile.childOn ?? Container()
                 )
               ]

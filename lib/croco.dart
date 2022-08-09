@@ -12,6 +12,7 @@ export './widgets/forms/consolidation_form.dart';
 export './widgets/text_based/description_panel.dart';
 export './widgets/main/croco_app.dart';
 export './views/log_in_view.dart';
+export './widgets/data_table/data_table.dart';
 
 
 
