@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '../croco_base.dart';
-import '../themes/themes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../widgets/main/globals.dart';
+import '../../themes/themes.dart';
 
 
-class HeaderSimpleSideBar extends StatelessWidget {
+
+class HeaderSimpleSideBar extends ConsumerWidget {
   HeaderSimpleSideBar({
     Key? key,
     String? this.text = "HEADER",
@@ -16,7 +19,7 @@ class HeaderSimpleSideBar extends StatelessWidget {
     double? internalProcessOp;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: EdgeInsets.only(left: 10, top: 20),
       padding: EdgeInsets.only(bottom: 16),
@@ -49,13 +52,14 @@ class HeaderSimpleSideBar extends StatelessWidget {
   }
 }
 
-class SimpleItemSideBar extends StatelessWidget {
+class SimpleItemSideBar extends ConsumerWidget {
   SimpleItemSideBar({
     Key? key,
-    String? this.title = "Sales Record",
-    Color? this.fontColor = Colors.white,
-    Icon? this.icon,
-    Color? this.backgroundColor
+    this.title = "Sales Record",
+    this.fontColor = Colors.white,
+    this.icon,
+    this.backgroundColor,
+    this.route
     }) : 
     super(key: key);
 
@@ -63,15 +67,18 @@ class SimpleItemSideBar extends StatelessWidget {
     Color? fontColor;
     Icon? icon;
     Color? backgroundColor;
+    String? route;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Material(
       color: backgroundColor ?? Theme.of(context).colorScheme.surfaceVariant,
       child: ListTile(
         leading: icon != null ? icon : null,
         dense: true,
-        onTap: (){},
+        onTap: (){
+          Globals.mainViewNavigator.currentState!.pushReplacementNamed(route!);
+        },
         hoverColor: CrocoTheme.of(context)!.themeDataExtra!.onHoverOnSurfaceVariant,
         title: Container(
           transform: icon != null ? Matrix4.translationValues(-8, 0, 0) : null,

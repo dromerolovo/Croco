@@ -184,12 +184,10 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
             alignment: Alignment.center,
             width: tileWidth,
             height: tileHeight,
-            // height: tileHeight >= 322.7998 ? tileHeight : tileHeight + (35.866 - tileHeight / 9 ),
             child: tile.header == true ? Column(    
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
-                  // height: tileHeight < 322.7998 ? 35.866 : tileHeight / 9,
                   height: widget.headerSize!.getHeaderSize(tileHeight),
                   width: tileWidth,
                   child: Row(
@@ -233,7 +231,6 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
                   color: widget.backgroundParentColor ?? Theme.of(context).colorScheme.background
                 ),
                 Container(
-                  // height: tileHeight - (tileHeight < 322.7998 ? 35.866 : tileHeight / 9) - 6.7,
                   height: tileHeight - widget.headerSize!.getHeaderSize(tileHeight) - 10 / 1.5,
                   child: tile.childOn ?? Container()
                 )
@@ -275,9 +272,9 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
           top: dataPicker.y! - 50 - 15,
           left: dataPicker.x! - 260 - 15,
           child: PhysicalModel(
-            borderRadius: BorderRadius.zero,
-            color: Colors.transparent,
-            elevation: 10,
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.black,
+            elevation: 15,
             child: Container(
               alignment: Alignment.center,
               height: 260,
@@ -293,11 +290,11 @@ class _CrocoGridState extends ConsumerState<CrocoGrid> {
                   //provisionally im going to change the state after the controller action. With the following line
                   //ref.read(formStatePodProvider.notifier).changeValidationStatus(dataPicker.parentKey, false);
                   
-
+          
                   dataPicker.controller!.value = TextEditingValue(
                     text: date!
                   );
-
+          
                   if(verification == false) { 
                     ref.read(formStatePodProvider.notifier).changeValidationStatus(dataPicker.parentKey, false);
                   }

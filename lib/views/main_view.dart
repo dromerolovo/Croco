@@ -1,28 +1,22 @@
-import 'dart:html';
 import 'package:croco/croco.dart';
-import 'package:croco/providers/firebase/firebase_data.dart';
-import 'package:croco/providers/firebase/utils.dart';
 import 'package:flutter/material.dart';
-import '../croco_base.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../widgets/main/globals.dart';
 
 class MainView extends ConsumerStatefulWidget {
   MainView({
     Key? key,
-    Widget? this.logo,
-    Color? this.colorHeader,
-    Color? this.colorBackground,
+    this.logo,
+    this.colorHeader,
+    this.colorBackground,
     required SimpleSideBar this.simpleSideBar,
-    Widget? this.viewChild,
-    Color? this.colorIcon,
+    this.colorIcon,
     }) : super(key: key);
 
     Widget? logo;
     Color? colorHeader;
     Color? colorBackground;
     SimpleSideBar? simpleSideBar;
-    Widget? viewChild;
     Color? colorIcon;
 
   @override
@@ -34,6 +28,12 @@ class _MainViewState extends ConsumerState<MainView> with CrocoBase, SingleTicke
 
   bool? breakPointActivation = false;
   bool? toggleMenu = false;
+  ValueNotifier<Map<String, Widget>> routeAndWidgetNotifier = ValueNotifier<Map<String,Widget>>({});
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
 
   @override
@@ -133,7 +133,42 @@ class _MainViewState extends ConsumerState<MainView> with CrocoBase, SingleTicke
                   color: Colors.transparent,
                   height: MediaQuery.of(context).size.height - 50,
                   width: breakPointActivation == false ? MediaQuery.of(context).size.width - 250 : MediaQuery.of(context).size.width,
-                  child: widget.viewChild
+                  // child: widget.viewChild,
+                  child: Navigator(
+                    key: Globals.mainViewNavigator,
+                    initialRoute: "/main-view/home",
+                    onGenerateRoute: (RouteSettings settings) {
+                      print("Main-View Route -> ${settings.name}");
+                      Globals.mainNavigator.currentState!.popUntil((route) {
+                        print("Main Route -> ${route.settings.name}");
+                        return true;
+                       });
+                      print(Globals.routesAndWidget);
+
+                      if(settings.name == "/") {
+                        return PageRouteBuilder(
+                        pageBuilder: (_,__,___) {
+                          return CircularProgressIndicator();
+                        },
+                        transitionDuration: const Duration(milliseconds: 100)
+                      );
+                      } else if(settings.name == "/main-view") {
+                        return PageRouteBuilder(
+                          pageBuilder: (_,__,___) {
+                            return CircularProgressIndicator();
+                          }
+                        );
+                      }
+                      else {
+                        return PageRouteBuilder(
+                        pageBuilder: (_,__,___) {
+                          return Globals.routesAndWidget[settings.name]!;
+                        },
+                        transitionDuration: const Duration(milliseconds: 100)
+                      );
+                      }
+                    }
+                  )
                 ),
               ),
             ),
