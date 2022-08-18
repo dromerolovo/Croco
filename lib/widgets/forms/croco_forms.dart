@@ -2,13 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:croco/croco.dart';
 import 'package:croco/providers/data_state.dart';
 import 'package:croco/providers/firebase/auth..dart';
-import 'package:croco/providers/firebase/utils.dart';
 import 'package:flutter/cupertino.dart';
 import '../buttons.dart';
 import 'package:flutter/material.dart';
 import '../../providers/forms_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../main/globals.dart';
 
 enum FormItemSize {small, medium, large, xlarge}
 
@@ -473,7 +473,7 @@ class LogInForm extends ConsumerStatefulWidget with CrocoBase  {
     this.themeColor,
     this.roundBorders = true,
     this.centerHeaderText = false,
-    this.widgetToRouting
+    this.globalKeyNavigatorState
     }) : super(key: key);
 
     String? title;
@@ -481,7 +481,7 @@ class LogInForm extends ConsumerStatefulWidget with CrocoBase  {
     Color? themeColor;
     bool? roundBorders;
     bool? centerHeaderText;
-    Widget? widgetToRouting;
+    GlobalKey<NavigatorState>? globalKeyNavigatorState;
     
 
   @override
@@ -541,11 +541,10 @@ class _LogInFormState extends ConsumerState<LogInForm> with SingleTickerProvider
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: username, 
         password: password
-      ).then((value) => 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => widget.widgetToRouting!)
-        )
+      ).then((value) {
+
+        Globals.mainNavigator.currentState!.pushReplacementNamed("/main-view");
+      }
       );
     } on FirebaseAuthException catch (e) {
       if(e.code == 'user-not-found') {

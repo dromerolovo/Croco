@@ -1,19 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:croco/croco.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import '../../themes/themes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../../firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_modular/flutter_modular.dart';
+import '../main/globals.dart';
 
 
-void initializeCrocoApp(Widget widget) async {
+
+void initializeCrocoApp(Map<String, Widget> routesAndWidgets, CrocoThemes crocoTheme) async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
   );
+
+  Globals.routesAndWidget = routesAndWidgets;
 
   FirebaseAuth.instance
   .authStateChanges()
@@ -25,41 +27,79 @@ void initializeCrocoApp(Widget widget) async {
     }
   });
 
-  runApp(widget);
+  runApp(CrocoApp(
+    crocoTheme: crocoTheme,
+    routesAndWidgets: routesAndWidgets,
+  ));
 }
 
-class AppModule extends Module {
-
-  @override
-  List<Bind> get binds => [];
-
-  @override
-  List<ModularRoute> get routes => [];
-}
-
-class CrocoApp extends StatelessWidget {
+class CrocoApp extends ConsumerStatefulWidget {
   CrocoApp({
     Key? key,
     required this.crocoTheme,
-    required this.home
+    required this.routesAndWidgets,
 
     }) : super(key: key);
 
     CrocoThemes crocoTheme;
-    Widget home;
+    Map<String, Widget> routesAndWidgets;
 
+  @override
+  ConsumerState<CrocoApp> createState() => _CrocoAppState();
+}
+
+class _CrocoAppState extends ConsumerState<CrocoApp> {
+
+  String initialRouteString() {
+
+    late String route;
+
+    var firebaseAuthState = FirebaseAuth.instance.currentUser;
+    if(firebaseAuthState != null) {
+      route = "/main-view";
+    } else if(firebaseAuthState == null) {
+      route = "/log-in";
+    } else {
+      throw("Unknown route");
+    }
+
+    return route;
+  }
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    
+
+    //Debugging purposes
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Globals.mainNavigator.currentState!.popUntil((route) {
+        print("Main Route -> ${route.settings.name}");
+        return true;
+      });
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
       data: MediaQueryData(),
       child: ProviderScope(
         child: CrocoTheme(
-          themeDataExtra: crocoTheme.themeExtra,
+          themeDataExtra: widget.crocoTheme.themeExtra,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'croco',
-            theme: crocoTheme.theme,
-            home: home
+            theme: widget.crocoTheme.theme,
+            navigatorKey: Globals.mainNavigator,
+            initialRoute: initialRouteString(),
+            routes: {
+              '/log-in': (context) => LogInView(logInForm: LogInForm()),
+              '/main-view': (context) => widget.routesAndWidgets["/main-view"]!,
+              '/': (context) => const Center(child: CircularProgressIndicator())
+            }
           )
         )
       )
